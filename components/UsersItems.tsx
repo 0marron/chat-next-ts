@@ -2,10 +2,11 @@ import React, { useEffect, useState, useMemo } from 'react';
  
 import {   Tab, Tabs, Toast, Button, ToggleButton, Badge, Alert, DropdownButton, Dropdown, ButtonGroup } from 'react-bootstrap';
  
-import {useInterval} from '../Utils';
-import{IsUrlAndImage, IsUrlAndMP4,IsUrlAndYoutube, isNullOrEmpty, getCookie, Base64, checkIsRoom} from '../Utils' ;
+ 
+import{ IsUrlAndImage, IsUrlAndMP4,IsUrlAndYoutube, MessageValidator, getCookie, Base64, checkIsRoom} from '../Utils' ;
 import 'react-image-lightbox/style.css';
- import {IMessageToSend} from '../Interfaces';
+import { IMessage } from '../Interfaces';
+
 import $ from 'jquery';
 
 import {AlertDismissibleExample} from './AlertDismissibleExample';
@@ -247,7 +248,7 @@ export const UsersItems = (props) => {
 const TextField = (props) => {
     const [isShowEmoji, setShowEmoji] = useState(false);
     const [chosenEmoji, setChosenEmoji] = useState(null);
-    const [textToSend, setTextToSend] = useState(null);
+    const [textToSend, setTextToSend] = useState<string | null>(null);
     const onEmojiClick = (event, emojiObject) => {
         var text = (document.getElementById("textfield")as HTMLFormElement).value;
         (document.getElementById("textfield") as HTMLFormElement).value = text + emojiObject.emoji;
@@ -262,23 +263,9 @@ const TextField = (props) => {
 
    const DoSubmit = (event) => {
        event.preventDefault();
-
-       const MessageValidator: IMessageToSend = (text: string)=>{
-
-         let emptyMessage = {
-            textmessage: null,
-            imageurl: null,
-            fromwho: string;
-            forwho: string|null;
-            audio: string|null;
-            chatRoomName: string|null;
-            imageastext: string|null;
-            youtubeastext: string|null;
-            videoastext: string|null;
-         }
-        
-       } 
-       (props.connection as HubConnection).invoke("BackMessageReciever",textToSend);
+       let Message: IMessage = MessageValidator(textToSend);
+      
+       (props.connection as HubConnection).invoke("BackMessageReciever", Message);
     }
 
     const emojiClickHandler = () => {

@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
+import {IMessage} from './Interfaces';
 
 export const Base64 = {
     decode: function (hex: string) {
@@ -151,3 +152,35 @@ export const useInterval = (callback, delay) => {
     }, [delay]);
 }
  
+export const MessageValidator = (value: string)=>  {
+    let Message: IMessage = {
+        textmessage: null,
+        imageurl: null,
+        fromwho: null,
+        forwho: null,
+        audio: null,
+        room: null,
+        imageastext: null,
+        youtubeastext: null,
+        videoastext: null,
+        videofile: null,
+        imagefile: null
+     }
+
+    if(IsUrlAndImage(value)) {
+        Message.imageurl = value;
+        return Message;
+    }
+    if(IsUrlAndMP4(value)) {
+        Message.videoastext = value;
+        return Message;
+    }
+    if(IsUrlAndYoutube(value)) {
+        Message.youtubeastext = value;
+        return Message;
+    }
+    if(!isNullOrEmpty(value)){
+        Message.textmessage = value
+    }
+    return Message;
+  }

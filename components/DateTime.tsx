@@ -24,7 +24,6 @@ export const DateTime = () => {
             <div style={{ height: "33.5px", margin: '0 0 0 0', verticalAlign: 'middle', padding: '0.55rem 1.25rem' }}  >
                 {timeLeft}
             </div>
-           
         </div>
         );
 }

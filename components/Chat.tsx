@@ -5,7 +5,7 @@ import{IsUrlAndImage, IsUrlAndMP4,IsUrlAndYoutube, isNullOrEmpty, getCookie, Bas
 import 'react-image-lightbox/style.css';
 import { UsersItems } from '../components/UsersItems';
 import * as signalR from '@microsoft/signalr';
-
+import {IMessage} from '../Interfaces';
 export const Chat  = () => {
  
     const [usMes, setUsMes] = useState({});
@@ -322,27 +322,7 @@ export const Chat  = () => {
       
     }
 
-    const AddLocalMessage = (message, _imageurl, audio, sender, recepient, usMes, _imageastext, _youtubeastext, _videoastext) => {
-         
-        var localmessage = {
-            textmessage: message,
-            imageurl: _imageurl,
-            username: recepient,
-            forwho: sender,
-            audio: audio,
-            chatRoomName: null,
-            islocal: true,
-            imageastext: _imageastext,
-            youtubeastext: _youtubeastext,
-            videoastext: _videoastext
-        }
-       
-        var copy = Object.assign({}, usMes);
-        copy[recepient].push(localmessage);
-        setUsMes(copy);
-
    
-    }
  
 
     function PingRequest() {
@@ -405,13 +385,14 @@ export const Chat  = () => {
     
       useEffect(() => {
         if (connection) {
-          connection
-            .start()
-            .then(() => {
-              connection.on("Response", (message, fwefwe) => {
+           connection.start().then(() => {
+              connection.on("PrivateResponse", (message, fromwho) => {
                     console.log(message);  
               });
-            })
+              connection.on("PublicResponse", (message: IMessage, fromwho) => {
+                    console.log(message);  
+              });
+            }) 
             .catch((error) => console.log(error));
         }
       }, [connection]);
@@ -420,23 +401,18 @@ export const Chat  = () => {
         return (
             <div>
                 <h1>Загрузка...</h1>
-               
                 <img src="https://hg1.funnyjunk.com/gifs/How+do+i+computer+i+decided+to+try+my+hands_81418e_4707807.gif"/>
             </div>
         );
     } else {
         return (
-
-            <UsersItems connection={connection} isOnSounds={isOnSounds} setIsOnSounds={setIsOnSounds} cookie={cookieName} usersArr={usersArr} secretRoomUsers={secretRoomUsers} roomsDic={roomsDic} showModal={showModal} setShowModal={setShowModal} notifWoman={notifWoman} notifMan={notifMan} setNotifWoman={setNotifWoman} setNotifMan={setNotifMan} enterUsers={enterUsers} setShow={setShow} show={show} usMes={usMes} activeTab={activeTab} setActiveTab={setActiveTab} usersSex={usersSex} usersBadge={usersBadge} setUserBadge={setUserBadge} AddLocalMessage={AddLocalMessage} messageText={messageText} setMessageText={setMessageText} /> 
-             
+            <UsersItems connection={connection} isOnSounds={isOnSounds} setIsOnSounds={setIsOnSounds} cookie={cookieName} usersArr={usersArr} secretRoomUsers={secretRoomUsers} roomsDic={roomsDic} showModal={showModal} setShowModal={setShowModal} notifWoman={notifWoman} notifMan={notifMan} setNotifWoman={setNotifWoman} setNotifMan={setNotifMan} enterUsers={enterUsers} setShow={setShow} show={show} usMes={usMes} activeTab={activeTab} setActiveTab={setActiveTab} usersSex={usersSex} usersBadge={usersBadge} setUserBadge={setUserBadge} messageText={messageText} setMessageText={setMessageText} /> 
         );
     }
 }
 
  
- const MESSAGE_TO_SEND ={
-
- }
+ 
 
  function GetTime() {
     var date = new Date();
