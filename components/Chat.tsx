@@ -29,7 +29,7 @@ export const Chat  = () => {
  
     const [connection, setConnection] = useState<signalR.HubConnection | null>(null);
 
- 
+    const[ghostName, setGhostName] = useState<string>(null)
 
 
     var cookieName = getCookie("Session");
@@ -373,13 +373,21 @@ export const Chat  = () => {
             });
     }
  
- 
+    function ghostLogin(){
+        fetch('https://localhost:7061/login/ghost').then(function(response) {
+            return response.text().then(function(text) {
+              setGhostName(text);
+            });
+          });
+    }
+
     useEffect(() => {
+        ghostLogin();
         PingRequest();
     }, []);
     
     useEffect(()=>{
-        let connect = new signalR.HubConnectionBuilder().withUrl("https://localhost:7061/chat").build()
+        let connect = new signalR.HubConnectionBuilder().withUrl("https://localhost:7061/chat", { accessTokenFactory: () => "fffffffffffffffffffffffffffg"}).build()
         setConnection(connect);
       },[])
     
