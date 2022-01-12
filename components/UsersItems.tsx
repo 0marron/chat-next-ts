@@ -159,35 +159,55 @@ export const UsersItems = (props) => {
            <div className="columnusers" id="cleft" style={columnUsersCSS } >
                <ul id="users">
                    {
-                       props.usersArr.map(function (name, i) {
-                           return (
-                               <li key={name} id={name} >
-                                   <ToggleButton
-                                       className="leftUserName"
-                                       disabled={name == props.cookie ? true : false}
-                                       type="checkbox"
-                                       variant="info"
-                                       checked={name == props.activeTab ? true : false}
-                                       value={i}
-                                       onChange={(e) => oncheckedHandler(e, name)}
-                                       style={props.usersSex[name] == "w" ? womanCSS : manCSS}                                    >
-                                       
+                       Object.keys(props.users).map((name,i)=>{
+                        return (
+                            <li key={name} id={name} >
+                                <ToggleButton
+                                    className="leftUserName"
+                                    disabled={name == props.cookie ? true : false}
+                                    type="checkbox"
+                                    variant="info"
+                                    checked={name == props.activeTab ? true : false}
+                                    value={i}
+                                    onChange={(e) => oncheckedHandler(e, name)}
+                                    style={props.users[name].sex === "w" ? womanCSS : manCSS}                                    >
+                                    <Badge  >{props.usersBadge[name]}</Badge>
+                                    {("Home" in props.roomsDic) && (props.roomsDic["Home"].isPassword != undefined) && name === "Home" && <img src="./crown.png" style={{ height: '20px', width: '20px' }} />} {/*костыль*/}
+                                    {(name in props.roomsDic) && (props.roomsDic[name].isPassword != undefined) && props.roomsDic[name].isPassword && <img src="./lock.png" style={{ height: '20px', width: '20px' }} />} {/*костыль*/}
 
-                                       
-                                       <Badge  >{props.usersBadge[name]}</Badge>
-                                       {("Home" in props.roomsDic) && (props.roomsDic["Home"].isPassword != undefined) && name === "Home" && <img src="./crown.png" style={{ height: '20px', width: '20px' }} />} {/*костыль*/}
-                                       {(name in props.roomsDic) && (props.roomsDic[name].isPassword != undefined) && props.roomsDic[name].isPassword && <img src="./lock.png" style={{ height: '20px', width: '20px' }} />} {/*костыль*/}
-                                       
+                                    {Base64.decode(name)}
+                                    {(name in props.roomsDic) && (props.roomsDic[name].isPassword != undefined) && !props.roomsDic[name].isPassword && <img src="./open.png" style={{ height: '20px', width: '20px' }} />} {/*костыль*/}
+                                </ToggleButton>
+                            </li>
+                        );
+                       })
+ 
 
-                                       {Base64.decode(name)}
-                                       {(name in props.roomsDic) && (props.roomsDic[name].isPassword != undefined) && !props.roomsDic[name].isPassword && <img src="./open.png" style={{ height: '20px', width: '20px' }} />} {/*костыль*/}
+                    //    props.usersArr.map(function (name, i) {
+                    //        return (
+                    //            <li key={name} id={name} >
+                    //                <ToggleButton
+                    //                    className="leftUserName"
+                    //                    disabled={name == props.cookie ? true : false}
+                    //                    type="checkbox"
+                    //                    variant="info"
+                    //                    checked={name == props.activeTab ? true : false}
+                    //                    value={i}
+                    //                    onChange={(e) => oncheckedHandler(e, name)}
+                    //                    style={props.usersSex[name] == "w" ? womanCSS : manCSS}                                    >
+                    //                    <Badge  >{props.usersBadge[name]}</Badge>
+                    //                    {("Home" in props.roomsDic) && (props.roomsDic["Home"].isPassword != undefined) && name === "Home" && <img src="./crown.png" style={{ height: '20px', width: '20px' }} />} {/*костыль*/}
+                    //                    {(name in props.roomsDic) && (props.roomsDic[name].isPassword != undefined) && props.roomsDic[name].isPassword && <img src="./lock.png" style={{ height: '20px', width: '20px' }} />} {/*костыль*/}
+
+                    //                    {Base64.decode(name)}
+                    //                    {(name in props.roomsDic) && (props.roomsDic[name].isPassword != undefined) && !props.roomsDic[name].isPassword && <img src="./open.png" style={{ height: '20px', width: '20px' }} />} {/*костыль*/}
 
                                 
                                        
-                                   </ToggleButton>
-                               </li>
-                           );
-                       })
+                    //                </ToggleButton>
+                    //            </li>
+                    //        );
+                    //    })
 
                    }
                </ul>

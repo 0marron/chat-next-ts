@@ -5,7 +5,7 @@ import 'react-image-lightbox/style.css';
 import { UsersItems } from '../components/UsersItems';
 import * as signalR from '@microsoft/signalr';
  import { IMessage_FROM_Server } from '../Interfaces';
- 
+ import { IUsersContainer, IMessagesContainer } from '../Interfaces';
  
 
 export const Chat  = () => {
@@ -31,18 +31,23 @@ export const Chat  = () => {
     const [connection, setConnection] = useState<signalR.HubConnection | null>(null);
     const [myName, setMyName] = useState(null);
 
-    interface IUsersContainer{
-        [key: string]:{ isman: boolean}
-    }
-    interface IMessagesContainer{
-        [key: string]: IMessage_FROM_Server
+    const [users, setUsers] = useState<IUsersContainer>(null);
+    const [privateMessages, setPrivateMessages] = useState<IMessagesContainer>(null);
+    const [publicMessages, setPublicMessages] = useState<IMessagesContainer>(null);
+     
+
+    const usersInit: IUsersContainer = {
+        "jjjtyjt":{"sex":"m"},
+        "dtjydtjydty":{"sex":""},
+        "sehserh":{"sex":""},
+        "dtyktdkdt":{"sex":"w"},
+        "dtkdtdttjjj":{"sex":"w"},
+        "tyjtyjrtyjrtyj":{"sex":"m"},
+        "rrttyj":{"sex":""}
+        
     }
 
-    const users: IUsersContainer = {
-        "Коля":{"isman":true},
-    }
-
-    const privateMessages: IMessagesContainer = {
+    const privateMessagesInit: IMessagesContainer = {
         "Коля":{
             textmessage: "",
             imageurl: "",
@@ -58,7 +63,7 @@ export const Chat  = () => {
         },
     }
 
-    const publicMessages: IMessagesContainer = {
+    const publicMessagesInit: IMessagesContainer = {
         "Home":{
             textmessage: "",
             imageurl: "",
@@ -425,7 +430,7 @@ export const Chat  = () => {
    // }
 
     useEffect(() => {
-    //    ghostLogin();
+        setUsers(usersInit);
         PingRequest();
     }, []);
     
@@ -436,14 +441,21 @@ export const Chat  = () => {
     
       useEffect(() => {
         if (connection) {
-           connection.start().then(() => {
+              connection.start().then(() => {
               connection.on("PrivateResponse", (message, fromwho) => {
                     console.log(message);  
               });
               connection.on("PublicResponse", (message , fromwho) => {
                     console.log(message);  
               });
-              connection.on("LoginNotify", (message: string) => {
+              connection.on("LoginNotify", (message, username: string) => {
+
+                  let new_value = {};
+                  new_value[username] = "";
+
+                  let all_users = Object.assign(new_value, users);
+                  setUsers(all_users);
+
                   setMyName(connection.connectionId);
                   setNotify({user: message, showing: true});
                 console.log(message);  
@@ -462,7 +474,7 @@ export const Chat  = () => {
         );
     } else {
         return (
-            <UsersItems myName={myName} notify={notify} setNotify={setNotify} connection={connection} isOnSounds={isOnSounds} setIsOnSounds={setIsOnSounds} cookie={cookieName} usersArr={usersArr} secretRoomUsers={secretRoomUsers} roomsDic={roomsDic} showModal={showModal} setShowModal={setShowModal} notifWoman={notifWoman} notifMan={notifMan} setNotifWoman={setNotifWoman} setNotifMan={setNotifMan} enterUsers={enterUsers} setShow={setShow} show={show} usMes={usMes} activeTab={activeTab} setActiveTab={setActiveTab} usersSex={usersSex} usersBadge={usersBadge} setUserBadge={setUserBadge} messageText={messageText} setMessageText={setMessageText} /> 
+            <UsersItems users={users} myName={myName} notify={notify} setNotify={setNotify} connection={connection} isOnSounds={isOnSounds} setIsOnSounds={setIsOnSounds} cookie={cookieName} usersArr={usersArr} secretRoomUsers={secretRoomUsers} roomsDic={roomsDic} showModal={showModal} setShowModal={setShowModal} notifWoman={notifWoman} notifMan={notifMan} setNotifWoman={setNotifWoman} setNotifMan={setNotifMan} enterUsers={enterUsers} setShow={setShow} show={show} usMes={usMes} activeTab={activeTab} setActiveTab={setActiveTab} usersSex={usersSex} usersBadge={usersBadge} setUserBadge={setUserBadge} messageText={messageText} setMessageText={setMessageText} /> 
         );
     }
 }

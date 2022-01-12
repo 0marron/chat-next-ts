@@ -1,4 +1,3 @@
- 
 
 export interface IMessage_FOR_Server{
     textmessage: string|null;
@@ -26,4 +25,10 @@ export interface IMessage_FROM_Server{
     videoastext: string|null;
     videofile: null;
     imagefile: null;
+}
+export interface IUsersContainer{
+    [key: string]:{ sex: string}
+}
+export interface IMessagesContainer{
+    [key: string]: IMessage_FROM_Server
 }
