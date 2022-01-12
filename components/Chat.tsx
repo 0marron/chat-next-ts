@@ -5,7 +5,7 @@ import 'react-image-lightbox/style.css';
 import { UsersItems } from '../components/UsersItems';
 import * as signalR from '@microsoft/signalr';
  import { IMessage_FROM_Server } from '../Interfaces';
- import { IUsersContainer, IMessagesContainer } from '../Interfaces';
+ import { IUsersContainer, IMessagesContainer, IRoomsContainer } from '../Interfaces';
  
 
 export const Chat  = () => {
@@ -43,15 +43,16 @@ export const Chat  = () => {
         "dtyktdkdt":{"sex":"w"},
         "dtkdtdttjjj":{"sex":"w"},
         "tyjtyjrtyjrtyj":{"sex":"m"},
-        "rrttyj":{"sex":""}
+        "Home":{"sex":""}
         
     }
+  
 
     const privateMessagesInit: IMessagesContainer = {
-        "Коля":{
-            textmessage: "",
+        "sehserh":[{
+            textmessage: "message test message test message test message test",
             imageurl: "",
-            fromwho:"",
+            fromwho:"sehserh",
             forwho: "",
             audio: "",
             room: "",
@@ -59,15 +60,15 @@ export const Chat  = () => {
             youtubeastext: "",
             videoastext: "",
             videofile: null,
-            imagefile: null,
-        },
+            imagefile: null
+        }]
     }
 
     const publicMessagesInit: IMessagesContainer = {
-        "Home":{
-            textmessage: "",
+        "Home":[{
+            textmessage: "fbtb tftb tbbbfbtfbfb dbdb dbdbdbdbtd bdtndtndd ersrgserg",
             imageurl: "",
-            fromwho:"",
+            fromwho:"tyjtyjrtyjrtyj",
             forwho: "",
             audio: "",
             room: "",
@@ -75,8 +76,8 @@ export const Chat  = () => {
             youtubeastext: "",
             videoastext: "",
             videofile: null,
-            imagefile: null,
-        }
+            imagefile: null
+        }]
     }
    
 
@@ -373,53 +374,7 @@ export const Chat  = () => {
    
  
 
-    function PingRequest() {
-        let data = JSON.parse( "{\"userlist\":[{\"name\":\"7072696E636573735F6F665F666F72657374\",\"sex\":\"w\"},{\"name\":\"4F76657272756E\",\"sex\":\"w\"},{\"name\":\"7369676D616D\",\"sex\":\"w\"},{\"name\":\"6F6C617361736861\",\"sex\":\"w\"},{\"name\":\"50696563655F6F665F7361646E657373\",\"sex\":\"w\"},{\"name\":\"73696C656E745F73637265616D\",\"sex\":\"w\"},{\"name\":\"70696F6E696573\",\"sex\":\"w\"},{\"name\":\"73616420476F6C656D\",\"sex\":\"w\"},{\"name\":\"6E6F72746820726F7365\",\"sex\":\"w\"},{\"name\":\"70696E6B20616E67656C\",\"sex\":\"w\"},{\"name\":\"524F4441\",\"sex\":\"w\"},{\"name\":\"5361646C79204D61646C79\",\"sex\":\"w\"},{\"name\":\"50657266656B746F4D6172696F\",\"sex\":\"w\"},{\"name\":\"50756E696373\",\"sex\":\"w\"},{\"name\":\"73656E74696E656C657365\",\"sex\":\"w\"},{\"name\":\"73696C656E7420736F756C\",\"sex\":\"w\"},{\"name\":\"526F73735F46616C636F6E65\",\"sex\":\"w\"},{\"name\":\"70697069\",\"sex\":\"w\"},{\"name\":\"506C616E6574205361646E657373\",\"sex\":\"w\"},{\"name\":\"6F6E6C795F796F75\",\"sex\":\"w\"},{\"name\":\"496E73616E697479\",\"sex\":\"m\"},{\"name\":\"4D69646173\",\"sex\":\"m\"},{\"name\":\"6D6F6F6E2D6D69737472657373\",\"sex\":\"m\"},{\"name\":\"4B59246D496348\",\"sex\":\"m\"},{\"name\":\"4C6F73744368616E6365\",\"sex\":\"m\"},{\"name\":\"676E66676E\",\"sex\":\"m\"},{\"name\":\"4865617274736F7265\",\"sex\":\"m\"},{\"name\":\"68656C6C6F5F62756E6E79\",\"sex\":\"m\"},{\"name\":\"6C6164795F76616D70\",\"sex\":\"m\"},{\"name\":\"6A7573745F73637265616D\",\"sex\":\"m\"},{\"name\":\"4974616C69616E506C756D626572\",\"sex\":\"m\"},{\"name\":\"4A7573745F66756E6B\",\"sex\":\"m\"},{\"name\":\"4D6172696C796E2048656C6C6F\",\"sex\":\"m\"},{\"name\":\"4D72732E536D69747479\",\"sex\":\"m\"},{\"name\":\"4C6F6E656C7920776F6C66\",\"sex\":\"m\"},{\"name\":\"6D69737472657373206F662074686520736F756C\",\"sex\":\"m\"},{\"name\":\"6E6963655F6375726C73\",\"sex\":\"m\"},{\"name\":\"4B61746520526F7373656C\",\"sex\":\"m\"}],\"messages\":[],\"publicrooms\":[{\"roomname\":\"Home\"}],\"secretrooms\":[]}" )  
-        dataHandler(data);
-        return;
-       // var curName = getCookie("Session");
-        // if (cookieName == undefined) {
-        //     document.location.href = "https://chatmenow.ru/";
-        //     return false;
-        // }
-      //  const Fp = document.getElementById("finger").value;
-        fetch('/ChatPage/Ping',
-            {
-                method: 'POST',
-                headers: { "Accept": "application/json", "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    cookieName: cookieName,
-                    fp: "Fp",
-                    groupRooms: ""
-                })
-
-            }).then(response => {
-                if (response.ok == true) {
-                    
-                    console.log(response.status);
-                   
-                    setPingAttempts(0);
-                   
-                } else {
-                   
-                    setPingAttempts(pingAttempts + 1);
-                    // if (pingAttempts == 10) {
-                    //     document.location.href = "https://chatmenow.ru/";
-                    // }
-                    console.log(response.status);
-                }
-                return response.json();
-            }).then(function (data) {
-                 dataHandler(data);
-            }).catch(function (error) {
-                setPingAttempts(pingAttempts + 10);
-                // if (pingAttempts == 3) {
-                //     document.location.href = "https://chatmenow.ru/";
-                // }
-            
-                console.log(error);
-            });
-    }
+ 
  
    // function ghostLogin(){
         // fetch('https://localhost:7061/login/ghost').then(function(response) {
@@ -430,8 +385,11 @@ export const Chat  = () => {
    // }
 
     useEffect(() => {
+        
         setUsers(usersInit);
-        PingRequest();
+        setPublicMessages(publicMessagesInit);
+        setPrivateMessages(privateMessagesInit);
+
     }, []);
     
     useEffect(()=>{
@@ -449,7 +407,6 @@ export const Chat  = () => {
                     console.log(message);  
               });
               connection.on("LoginNotify", (message, username: string) => {
-
                   let new_value = {};
                   new_value[username] = "";
 
@@ -465,18 +422,18 @@ export const Chat  = () => {
         }
       }, [connection]);
 
-    if (!isLoading) {
+    // if (!isLoading) {
+    //     return (
+    //         <div>
+    //             <h1>Загрузка...</h1>
+    //             <img src="https://hg1.funnyjunk.com/gifs/How+do+i+computer+i+decided+to+try+my+hands_81418e_4707807.gif"/>
+    //         </div>
+    //     );
+    // } else {
         return (
-            <div>
-                <h1>Загрузка...</h1>
-                <img src="https://hg1.funnyjunk.com/gifs/How+do+i+computer+i+decided+to+try+my+hands_81418e_4707807.gif"/>
-            </div>
+            <UsersItems users={users} publicMessages={publicMessages} privateMessages={privateMessages} myName={myName} notify={notify} setNotify={setNotify} connection={connection} isOnSounds={isOnSounds} setIsOnSounds={setIsOnSounds} cookie={cookieName} usersArr={usersArr} secretRoomUsers={secretRoomUsers} roomsDic={roomsDic} showModal={showModal} setShowModal={setShowModal} notifWoman={notifWoman} notifMan={notifMan} setNotifWoman={setNotifWoman} setNotifMan={setNotifMan} enterUsers={enterUsers} setShow={setShow} show={show} usMes={usMes} activeTab={activeTab} setActiveTab={setActiveTab} usersSex={usersSex} usersBadge={usersBadge} setUserBadge={setUserBadge} messageText={messageText} setMessageText={setMessageText} /> 
         );
-    } else {
-        return (
-            <UsersItems users={users} myName={myName} notify={notify} setNotify={setNotify} connection={connection} isOnSounds={isOnSounds} setIsOnSounds={setIsOnSounds} cookie={cookieName} usersArr={usersArr} secretRoomUsers={secretRoomUsers} roomsDic={roomsDic} showModal={showModal} setShowModal={setShowModal} notifWoman={notifWoman} notifMan={notifMan} setNotifWoman={setNotifWoman} setNotifMan={setNotifMan} enterUsers={enterUsers} setShow={setShow} show={show} usMes={usMes} activeTab={activeTab} setActiveTab={setActiveTab} usersSex={usersSex} usersBadge={usersBadge} setUserBadge={setUserBadge} messageText={messageText} setMessageText={setMessageText} /> 
-        );
-    }
+   // }
 }
 
 

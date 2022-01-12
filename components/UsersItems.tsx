@@ -51,7 +51,7 @@ export const UsersItems = (props) => {
             });
 
 
-            (document.getElementById("textfield") as HTMLFormElement).value = "";
+            ( document.getElementById("textfield") as HTMLFormElement).value = "";
             ( document.getElementById("textfield") as HTMLFormElement).focus();
             ( document.getElementById("textfield") as HTMLFormElement).select();
     }
@@ -151,10 +151,6 @@ export const UsersItems = (props) => {
     }
     return (
         <div className="row" onTouchStart={(e) => onTap(e)} onTouchMove={(e) =>moveTouch(e)} >
-             
-
-                  
-
             <ModalPrivateRoom modalMessage={modalMessage} setModalMessage={setModalMessage} prevTab={prevTab} {...props} />
            <div className="columnusers" id="cleft" style={columnUsersCSS } >
                <ul id="users">
@@ -181,34 +177,6 @@ export const UsersItems = (props) => {
                             </li>
                         );
                        })
- 
-
-                    //    props.usersArr.map(function (name, i) {
-                    //        return (
-                    //            <li key={name} id={name} >
-                    //                <ToggleButton
-                    //                    className="leftUserName"
-                    //                    disabled={name == props.cookie ? true : false}
-                    //                    type="checkbox"
-                    //                    variant="info"
-                    //                    checked={name == props.activeTab ? true : false}
-                    //                    value={i}
-                    //                    onChange={(e) => oncheckedHandler(e, name)}
-                    //                    style={props.usersSex[name] == "w" ? womanCSS : manCSS}                                    >
-                    //                    <Badge  >{props.usersBadge[name]}</Badge>
-                    //                    {("Home" in props.roomsDic) && (props.roomsDic["Home"].isPassword != undefined) && name === "Home" && <img src="./crown.png" style={{ height: '20px', width: '20px' }} />} {/*костыль*/}
-                    //                    {(name in props.roomsDic) && (props.roomsDic[name].isPassword != undefined) && props.roomsDic[name].isPassword && <img src="./lock.png" style={{ height: '20px', width: '20px' }} />} {/*костыль*/}
-
-                    //                    {Base64.decode(name)}
-                    //                    {(name in props.roomsDic) && (props.roomsDic[name].isPassword != undefined) && !props.roomsDic[name].isPassword && <img src="./open.png" style={{ height: '20px', width: '20px' }} />} {/*костыль*/}
-
-                                
-                                       
-                    //                </ToggleButton>
-                    //            </li>
-                    //        );
-                    //    })
-
                    }
                </ul>
            </div>
@@ -217,19 +185,35 @@ export const UsersItems = (props) => {
                <ul id="messages">
                    <Tabs defaultActiveKey="Home" unmountOnExit={false} activeKey={props.activeTab} transition={false} id="noanim-tab-example" className="chatTabs"  >
                        {
-                           Object.keys(props.usMes).map(function (name, i) {
-                               return (
-                                   <Tab eventKey={name} title={name} key={i} className="message-field" disabled>
-                                       {
-                                           props.usMes[name].map((mes, z) => {
-                                               return (
-                                                   <AlertDismissibleExample key={z} cookie={props.cookie} setNameClickText={setNameClickText} nameClickText={nameClickText}   secretRoomUsers={props.secretRoomUsers} usersSex={props.usersSex} username={mes.username} fromwho={mes.fromwho} textmessage={mes.textmessage} imageurl={mes.imageurl} islocal={mes.islocal} audio={mes.audio} isOnImage={isOnImage} isOnSounds={props.isOnSounds} imageastext={mes.imageastext} youtubeastext={mes.youtubeastext} videoastext={mes.videoastext} isOnScroll={isOnScroll} setIsOnImage={setIsOnImage} setIsOnSounds={props.setIsOnSounds} setIsOnScroll={setIsOnScroll} setMessageText={props.setMessageText} {...props} />
-                                               );
-                                           })
-                                       }
-                                   </Tab>
-                               );
-                           })
+                            Object.keys(props.publicMessages).map(function (name, i) {
+                                return (
+                                    <Tab eventKey={name} title={name} key={i} className="message-field" disabled>
+                                        {
+                                            props.publicMessages[name].map((mes, mes_key) => {
+                                                return (
+                                                    <AlertDismissibleExample key={mes_key} cookie={props.cookie} setNameClickText={setNameClickText} nameClickText={nameClickText}   secretRoomUsers={props.secretRoomUsers} usersSex={props.usersSex} username={mes.username} fromwho={mes.fromwho} textmessage={mes.textmessage} imageurl={mes.imageurl} islocal={mes.islocal} audio={mes.audio} isOnImage={isOnImage} isOnSounds={props.isOnSounds} imageastext={mes.imageastext} youtubeastext={mes.youtubeastext} videoastext={mes.videoastext} isOnScroll={isOnScroll} setIsOnImage={setIsOnImage} setIsOnSounds={props.setIsOnSounds} setIsOnScroll={setIsOnScroll} setMessageText={props.setMessageText} {...props} />
+                                                );
+                                            })
+                                        }
+                                    </Tab>
+                                );
+                            })
+                       }
+
+                       {
+                             Object.keys(props.privateMessages).map(function (name, i) {
+                                return (
+                                    <Tab eventKey={name} title={name} key={i} className="message-field" disabled>
+                                        {
+                                            props.publicMessages[name].map((mes, mes_key) => {
+                                                return (
+                                                    <AlertDismissibleExample key={mes_key} cookie={props.cookie} setNameClickText={setNameClickText} nameClickText={nameClickText}   secretRoomUsers={props.secretRoomUsers} usersSex={props.usersSex} username={mes.username} fromwho={mes.fromwho} textmessage={mes.textmessage} imageurl={mes.imageurl} islocal={mes.islocal} audio={mes.audio} isOnImage={isOnImage} isOnSounds={props.isOnSounds} imageastext={mes.imageastext} youtubeastext={mes.youtubeastext} videoastext={mes.videoastext} isOnScroll={isOnScroll} setIsOnImage={setIsOnImage} setIsOnSounds={props.setIsOnSounds} setIsOnScroll={setIsOnScroll} setMessageText={props.setMessageText} {...props} />
+                                                );
+                                            })
+                                        }
+                                    </Tab>
+                                );
+                            })
                        }
                    </Tabs>
                </ul>
