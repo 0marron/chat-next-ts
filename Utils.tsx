@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import {IMessage} from './Interfaces';
+import {IMessage_FOR_Server} from './Interfaces';
 
 export const Base64 = {
     decode: function (hex: string) {
@@ -153,7 +153,7 @@ export const useInterval = (callback, delay) => {
 }
  
 export const MessageValidator = (value: string)=>  {
-    let Message: IMessage = {
+    let Message: IMessage_FOR_Server = {
         textmessage: null,
         imageurl: null,
         fromwho: null,

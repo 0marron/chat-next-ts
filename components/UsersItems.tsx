@@ -1,19 +1,14 @@
 import React, { useEffect, useState, useMemo } from 'react';
- 
-import {   Tab, Tabs, Toast, Button, ToggleButton, Badge, Alert, DropdownButton, Dropdown, ButtonGroup } from 'react-bootstrap';
- 
- 
+import { Tab, Tabs, Toast, Button, ToggleButton, Badge, Alert, DropdownButton, Dropdown, ButtonGroup } from 'react-bootstrap';
 import{ IsUrlAndImage, IsUrlAndMP4,IsUrlAndYoutube, MessageValidator, getCookie, Base64, checkIsRoom} from '../Utils' ;
 import 'react-image-lightbox/style.css';
-import { IMessage } from '../Interfaces';
-
-import $ from 'jquery';
-
-import {AlertDismissibleExample} from './AlertDismissibleExample';
  
+import { NotifyBadge } from '../components/NotifyBadge';
+import $ from 'jquery';
+import { TextField } from '../components/TextField';
+ 
+import {AlertDismissibleExample} from './AlertDismissibleExample';
 import { Sidebar } from './Sidebar';
-
-
 import {ModalPrivateRoom} from './ModalPrivateRoom';
 import { HubConnection } from "@microsoft/signalr";
 export const UsersItems = (props) => {
@@ -41,7 +36,7 @@ export const UsersItems = (props) => {
         var _youtubeastext = IsUrlAndYoutube(text);
         var _videoastext = IsUrlAndMP4(text);   
 
-        props.AddLocalMessage(text, "", null, cookie, recipient, props.usMes, _imageastext, _youtubeastext, _videoastext);//Add local text message with global obj
+     
 
         fetch('/ChatPage/Send',
             {
@@ -57,12 +52,8 @@ export const UsersItems = (props) => {
 
 
             (document.getElementById("textfield") as HTMLFormElement).value = "";
-
-
             ( document.getElementById("textfield") as HTMLFormElement).focus();
             ( document.getElementById("textfield") as HTMLFormElement).select();
-        
-
     }
   
     
@@ -164,7 +155,7 @@ export const UsersItems = (props) => {
 
                   
 
-            <ModalPrivateRoom modalMessage={modalMessage} setModalMessage={setModalMessage} prevTab={prevTab} activeTab={props.activeTab} setActiveTab={props.setActiveTab} userName={props.cookie} />
+            <ModalPrivateRoom modalMessage={modalMessage} setModalMessage={setModalMessage} prevTab={prevTab} {...props} />
            <div className="columnusers" id="cleft" style={columnUsersCSS } >
                <ul id="users">
                    {
@@ -202,21 +193,7 @@ export const UsersItems = (props) => {
                </ul>
            </div>
            <div className="columntext" id="cright">
-           <div
-                   aria-live="polite"
-                   aria-atomic="true"
-                   style={{
-                       position: 'absolute',
-                       height: '50px',
-                       top: 2,
-                       right: 2
-                   }}
-                >
-                    {props.notify.showing &&
-                    <Toast onClose={() => props.setNotify({user:"", showing: false})} show={props.notify.showing} delay={3000} autohide>
-                        <Toast.Body>В чат заходит:   { props.notify.user } </Toast.Body>
-                    </Toast>}
-               </div>
+               <NotifyBadge {...props}/> {/*Ghost user entered notif*/}
                <ul id="messages">
                    <Tabs defaultActiveKey="Home" unmountOnExit={false} activeKey={props.activeTab} transition={false} id="noanim-tab-example" className="chatTabs"  >
                        {
@@ -227,7 +204,6 @@ export const UsersItems = (props) => {
                                            props.usMes[name].map((mes, z) => {
                                                return (
                                                    <AlertDismissibleExample key={z} cookie={props.cookie} setNameClickText={setNameClickText} nameClickText={nameClickText}   secretRoomUsers={props.secretRoomUsers} usersSex={props.usersSex} username={mes.username} fromwho={mes.fromwho} textmessage={mes.textmessage} imageurl={mes.imageurl} islocal={mes.islocal} audio={mes.audio} isOnImage={isOnImage} isOnSounds={props.isOnSounds} imageastext={mes.imageastext} youtubeastext={mes.youtubeastext} videoastext={mes.videoastext} isOnScroll={isOnScroll} setIsOnImage={setIsOnImage} setIsOnSounds={props.setIsOnSounds} setIsOnScroll={setIsOnScroll} setMessageText={props.setMessageText} {...props} />
-                                                     
                                                );
                                            })
                                        }
@@ -235,72 +211,11 @@ export const UsersItems = (props) => {
                                );
                            })
                        }
-
                    </Tabs>
-               
                </ul>
-                <Sidebar   sendRequest={SendRequest }  secretRoomUsers={props.secretRoomUsers} setShowModal={props.setShowModal} activeTab={props.activeTab} cookieName={props.cookie} setIsOnImage={setIsOnImage} setIsOnSounds={props.setIsOnSounds} setIsOnScroll={setIsOnScroll} isOnImage={isOnImage} isOnSounds={props.isOnSounds} isOnScroll={isOnScroll} messageText={props.messageText} setMessageText={props.setMessageText} {...props} />
-              
+                <Sidebar sendRequest={SendRequest } setIsOnImage={setIsOnImage} setIsOnScroll={setIsOnScroll} isOnImage={isOnImage} isOnScroll={isOnScroll} {...props} />
            </div>
-           <TextField sendRequest={SendRequest} activeTab={props.activeTab}  {...props} />
+           <TextField sendRequest={SendRequest} {...props} />
        </div>
-             
-           
-       );
-}
-
-const TextField = (props) => {
-    const [isShowEmoji, setShowEmoji] = useState(false);
-    const [chosenEmoji, setChosenEmoji] = useState(null);
-    const [textToSend, setTextToSend] = useState<string | null>(null);
-    const onEmojiClick = (event, emojiObject) => {
-        var text = (document.getElementById("textfield")as HTMLFormElement).value;
-        (document.getElementById("textfield") as HTMLFormElement).value = text + emojiObject.emoji;
-        document.getElementById("textfield").focus();
-       // document.getElementById("textfield").select();
-    };
-   
-    
-
-
- 
-
-   const DoSubmit = (event) => {
-       event.preventDefault();
-       let Message: IMessage = MessageValidator(textToSend);
-      
-       (props.connection as HubConnection).invoke("BackMessageReciever", Message);
-    }
-
-    const emojiClickHandler = () => {
-        setShowEmoji(!isShowEmoji);
-        ( document.getElementById("textfield") as HTMLFormElement).focus();
-        ( document.getElementById("textfield") as HTMLFormElement).select();
-    }
-    const openRightMenu = () => {
-        if (document.getElementById("rightMenu").style.display == "block") {
-            document.getElementById("rightMenu").style.display = "none";
-        } else {
-            document.getElementById("rightMenu").style.display = "block";
-        }
-    }
-    const closeRightMenu = () => {
-        document.getElementById("rightMenu").style.display = "none";
-    }
-   return (
-    <>
-       <div className="underchat">
-            <form className="loginform" action="/Send" method="post" onSubmit={(e) => DoSubmit(e)}>
-                <input id="textfield" className="textfield" type="text" placeholder="" value={textToSend} onChange={(e)=> {setTextToSend(e.target.value)}} autoComplete="off" name="temp" style={{ paddingRight:'50px' }} required />
-                <input className="sendbutton" type="submit" value="Send"   />
-            </form>
-        
-               <label id="emojipicker" onClick={emojiClickHandler} >
-                  <img src="./smile.png" style={{ width: 35 + 'px', height: 35 + 'px', marginLeft: '7.5px', marginTop: '7.5px', marginBottom: '7.5px', marginRight: '7.5px', display: 'block' }} />
-               </label>
-       </div>
-       {/* { isShowEmoji && (<Picker native={true} onEmojiClick={onEmojiClick} disableAutoFocus={true} preload={false} skinTone={SKIN_TONE_NEUTRAL} disableSearchBar={true} preload={false} pickerStyle={{ right: '0px', bottom: '50px', position: 'absolute' }} />)}*/}
-    </>
-        
        );
 }

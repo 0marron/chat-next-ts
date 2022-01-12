@@ -1,16 +1,17 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import {   Tab, Tabs, Toast, Button, ToggleButton, Badge, Alert, DropdownButton, Dropdown, ButtonGroup } from 'react-bootstrap';
-import {useInterval} from '../Utils';
+ 
 import{IsUrlAndImage, IsUrlAndMP4,IsUrlAndYoutube, isNullOrEmpty, getCookie, Base64, checkIsRoom} from '../Utils' ;
 import 'react-image-lightbox/style.css';
 import { UsersItems } from '../components/UsersItems';
 import * as signalR from '@microsoft/signalr';
-import {IMessage} from '../Interfaces';
+ import { IMessage_FROM_Server } from '../Interfaces';
+ 
+ 
+
 export const Chat  = () => {
  
     const [usMes, setUsMes] = useState({});
     const [isLoading, setLoading] = useState(false);
-    const [welcomeName, setWelcomeName] = useState("");
     const [usersSex, setUserSex] = useState({});
     const [usersBadge, setUserBadge] = useState({});
     const [activeTab, setActiveTab] = useState('Home');
@@ -24,17 +25,59 @@ export const Chat  = () => {
     const [secretRoomUsers, setSecretRoomUsers] = useState({});
     const [pingAttempts, setPingAttempts] = useState(0);
     const [usersArr, setUsersArr] = useState([]);
-    const [isLoadStartMessagess, setIsLoadStartMessagess] = useState(false);
+ 
     const [isOnSounds, setIsOnSounds] = useState("");
     const [notify, setNotify] = useState({user:"", showing: false});
     const [connection, setConnection] = useState<signalR.HubConnection | null>(null);
+    const [myName, setMyName] = useState(null);
 
-    const[ghostName, setGhostName] = useState<string>(null)
+    interface IUsersContainer{
+        [key: string]:{ isman: boolean}
+    }
+    interface IMessagesContainer{
+        [key: string]: IMessage_FROM_Server
+    }
 
+    const users: IUsersContainer = {
+        "Коля":{"isman":true},
+    }
+
+    const privateMessages: IMessagesContainer = {
+        "Коля":{
+            textmessage: "",
+            imageurl: "",
+            fromwho:"",
+            forwho: "",
+            audio: "",
+            room: "",
+            imageastext: "",
+            youtubeastext: "",
+            videoastext: "",
+            videofile: null,
+            imagefile: null,
+        },
+    }
+
+    const publicMessages: IMessagesContainer = {
+        "Home":{
+            textmessage: "",
+            imageurl: "",
+            fromwho:"",
+            forwho: "",
+            audio: "",
+            room: "",
+            imageastext: "",
+            youtubeastext: "",
+            videoastext: "",
+            videofile: null,
+            imagefile: null,
+        }
+    }
+   
 
     var cookieName = getCookie("Session");
- 
-   
+      
+    
    
      async function fetchStartMessages( ) {
          const response = await fetch('/ChatPage/StartMessages', {
@@ -387,7 +430,7 @@ export const Chat  = () => {
     }, []);
     
     useEffect(()=>{
-        let connect = new signalR.HubConnectionBuilder().withUrl("https://localhost:7061/chat", { accessTokenFactory: () => "fffffffffffffffffffffffffffg"}).build()
+        let connect = new signalR.HubConnectionBuilder().withUrl("https://localhost:7061/chat").build()
         setConnection(connect);
       },[])
     
@@ -397,10 +440,11 @@ export const Chat  = () => {
               connection.on("PrivateResponse", (message, fromwho) => {
                     console.log(message);  
               });
-              connection.on("PublicResponse", (message: IMessage, fromwho) => {
+              connection.on("PublicResponse", (message , fromwho) => {
                     console.log(message);  
               });
               connection.on("LoginNotify", (message: string) => {
+                  setMyName(connection.connectionId);
                   setNotify({user: message, showing: true});
                 console.log(message);  
               });
@@ -418,7 +462,7 @@ export const Chat  = () => {
         );
     } else {
         return (
-            <UsersItems notify={notify} setNotify={setNotify} connection={connection} isOnSounds={isOnSounds} setIsOnSounds={setIsOnSounds} cookie={cookieName} usersArr={usersArr} secretRoomUsers={secretRoomUsers} roomsDic={roomsDic} showModal={showModal} setShowModal={setShowModal} notifWoman={notifWoman} notifMan={notifMan} setNotifWoman={setNotifWoman} setNotifMan={setNotifMan} enterUsers={enterUsers} setShow={setShow} show={show} usMes={usMes} activeTab={activeTab} setActiveTab={setActiveTab} usersSex={usersSex} usersBadge={usersBadge} setUserBadge={setUserBadge} messageText={messageText} setMessageText={setMessageText} /> 
+            <UsersItems myName={myName} notify={notify} setNotify={setNotify} connection={connection} isOnSounds={isOnSounds} setIsOnSounds={setIsOnSounds} cookie={cookieName} usersArr={usersArr} secretRoomUsers={secretRoomUsers} roomsDic={roomsDic} showModal={showModal} setShowModal={setShowModal} notifWoman={notifWoman} notifMan={notifMan} setNotifWoman={setNotifWoman} setNotifMan={setNotifMan} enterUsers={enterUsers} setShow={setShow} show={show} usMes={usMes} activeTab={activeTab} setActiveTab={setActiveTab} usersSex={usersSex} usersBadge={usersBadge} setUserBadge={setUserBadge} messageText={messageText} setMessageText={setMessageText} /> 
         );
     }
 }
