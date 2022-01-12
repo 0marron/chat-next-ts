@@ -112,10 +112,7 @@ export const Sidebar = (props) => {
     }
  
     return (
-     
           <>
-
-       
             <div className="w3-sidebar" id="rightMenu" style={isShowSlider ? slidebarOpen : slidebarClose}>
                 <div className="sliderBody">
                     <div className="showSliderButton">

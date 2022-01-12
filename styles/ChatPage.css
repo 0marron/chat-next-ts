@@ -1,3 +1,19 @@
+*{
+    margin: 0;
+    padding: 0;
+}
+html, body {
+    overflow-x: hidden;
+    overflow-y: hidden;
+    background: white;
+    color: #000;
+    width: 100%;
+    height: 100%;
+}
+#__next{
+    width:100%; 
+    height:100%;
+}
 
 /* Full-width input fields */
 input[type=text], input[type=password] {
@@ -63,14 +79,7 @@ img.avatar {
  
 
 /* other styles */
-html, body {
-    overflow-x: hidden;
-    overflow-y: auto;
-    background: white;
-    color: #000;
-    width: 100%;
-    height: 100%;
-}
+ 
 
 .centerer {
     text-align: center;
@@ -219,35 +228,7 @@ label input[type="checkbox"] {
     width: 100%;
     padding: 0px;
 }
-.columnusers {
-    float: left;
-    word-wrap: break-word;
-    height: 100%;
-    background-color: #e7f18d;
-    background-color: #4b3eba;
-    overflow-y: scroll;
-    height: 100%;
-    width: 25%;
-    top: 0;
-    left: 0;
-    overflow-x: hidden;
-    transition: 0.5s;
-    padding: 0px;
-    margin: 0px;
-    padding-top: 0px;
-    background-color: #d0cdb1;
-}
-
-.columntext {
-    float: left;
-    height: 100%;
-    width: 75%;
-    background-color: skyblue;
-    overflow-y: scroll;
-    overflow-x: hidden;
-    word-wrap: break-word;
-    transition: 0.5s;
-}
+ 
 
 #happybutton {
     font-size: 26px !important;
@@ -266,12 +247,7 @@ label input[type="checkbox"] {
     background-color: gray;
     color: white;
 }
-.row {
-    margin-left: 0px;
-    margin-right: 0px;
-    height: calc(100% - 50px);
-    width: 100%;
-}
+ 
 .loginform {
     width: 100%;
     height: 50px;
@@ -366,6 +342,7 @@ p{
 .underchat {
     width: 100%;
     height: 50px;
+    padding: 0;
 }
  
 .sendbutton {
@@ -530,4 +507,51 @@ p{
 .leftUserName.btn.active.btn-info {
     mix-blend-mode: multiply;
     border-width: 2.5px;
+}
+
+
+.row {
+    margin-left: 0px;
+    margin-right: 0px;
+    height: calc(100% - 50px);
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+}
+.main{
+     height: 100%; 
+     width: 100%; 
+     text-align: center; 
+     font-size: 16px; 
+     font-style: normal;
+}
+
+.columnusers {
+    float: left;
+    word-wrap: break-word;
+    height: 100%;
+    background-color: #e7f18d;
+    background-color: #4b3eba;
+    overflow-y: scroll;
+    height: 100%;
+    width: 25%;
+    top: 0;
+    left: 0;
+    overflow-x: hidden;
+    transition: 0.5s;
+    padding: 0px;
+    margin: 0px;
+    padding-top: 0px;
+    background-color: #d0cdb1;
+}
+
+.columntext {
+    float: left;
+    height: 100%;
+    width: 75%;
+    background-color: #d7eada;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    word-wrap: break-word;
+    transition: 0.5s;
 }

@@ -26,7 +26,7 @@ export const Chat  = () => {
     const [usersArr, setUsersArr] = useState([]);
     const [isLoadStartMessagess, setIsLoadStartMessagess] = useState(false);
     const [isOnSounds, setIsOnSounds] = useState("");
- 
+    const [notify, setNotify] = useState({user:"", showing: false});
     const [connection, setConnection] = useState<signalR.HubConnection | null>(null);
 
     const[ghostName, setGhostName] = useState<string>(null)
@@ -276,21 +276,21 @@ export const Chat  = () => {
 
 
        
-        if (!isLoadStartMessagess) {
-             fetchStartMessages().then(function (data) {
-                 data.forEach((m) => {
-                     var _imageastext = IsUrlAndImage(m.textmessage);
-                     var _youtubeastext = IsUrlAndYoutube(m.textmessage);
-                     var _videoastext = IsUrlAndMP4(m.textmessage);
-                     m.imageastext = _imageastext;
-                     m.youtubeastext = _youtubeastext;
-                     m.videoastext = _videoastext;
-                     obj["Home"].push(m);
-                 })
-                 setIsLoadStartMessagess(true);
-            });
+        // if (!isLoadStartMessagess) {
+        //      fetchStartMessages().then(function (data) {
+        //          data.forEach((m) => {
+        //              var _imageastext = IsUrlAndImage(m.textmessage);
+        //              var _youtubeastext = IsUrlAndYoutube(m.textmessage);
+        //              var _videoastext = IsUrlAndMP4(m.textmessage);
+        //              m.imageastext = _imageastext;
+        //              m.youtubeastext = _youtubeastext;
+        //              m.videoastext = _videoastext;
+        //              obj["Home"].push(m);
+        //          })
+        //          setIsLoadStartMessagess(true);
+        //     });
           
-        }
+        // }
       for (let key in obj) {
           if (!users_and_rooms_names_arr.includes(key)) {
               //console.log("delete")
@@ -373,16 +373,16 @@ export const Chat  = () => {
             });
     }
  
-    function ghostLogin(){
-        fetch('https://localhost:7061/login/ghost').then(function(response) {
-            return response.text().then(function(text) {
-              setGhostName(text);
-            });
-          });
-    }
+   // function ghostLogin(){
+        // fetch('https://localhost:7061/login/ghost').then(function(response) {
+        //     return response.text().then(function(text) {
+        //       setGhostName(text);
+        //     });
+        //   });
+   // }
 
     useEffect(() => {
-        ghostLogin();
+    //    ghostLogin();
         PingRequest();
     }, []);
     
@@ -400,6 +400,10 @@ export const Chat  = () => {
               connection.on("PublicResponse", (message: IMessage, fromwho) => {
                     console.log(message);  
               });
+              connection.on("LoginNotify", (message: string) => {
+                  setNotify({user: message, showing: true});
+                console.log(message);  
+              });
             }) 
             .catch((error) => console.log(error));
         }
@@ -414,19 +418,11 @@ export const Chat  = () => {
         );
     } else {
         return (
-            <UsersItems connection={connection} isOnSounds={isOnSounds} setIsOnSounds={setIsOnSounds} cookie={cookieName} usersArr={usersArr} secretRoomUsers={secretRoomUsers} roomsDic={roomsDic} showModal={showModal} setShowModal={setShowModal} notifWoman={notifWoman} notifMan={notifMan} setNotifWoman={setNotifWoman} setNotifMan={setNotifMan} enterUsers={enterUsers} setShow={setShow} show={show} usMes={usMes} activeTab={activeTab} setActiveTab={setActiveTab} usersSex={usersSex} usersBadge={usersBadge} setUserBadge={setUserBadge} messageText={messageText} setMessageText={setMessageText} /> 
+            <UsersItems notify={notify} setNotify={setNotify} connection={connection} isOnSounds={isOnSounds} setIsOnSounds={setIsOnSounds} cookie={cookieName} usersArr={usersArr} secretRoomUsers={secretRoomUsers} roomsDic={roomsDic} showModal={showModal} setShowModal={setShowModal} notifWoman={notifWoman} notifMan={notifMan} setNotifWoman={setNotifWoman} setNotifMan={setNotifMan} enterUsers={enterUsers} setShow={setShow} show={show} usMes={usMes} activeTab={activeTab} setActiveTab={setActiveTab} usersSex={usersSex} usersBadge={usersBadge} setUserBadge={setUserBadge} messageText={messageText} setMessageText={setMessageText} /> 
         );
     }
 }
 
- 
- 
-
- function GetTime() {
-    var date = new Date();
-    return date.getHours() + ":" + date.getMinutes();
-}
- 
 
  
  

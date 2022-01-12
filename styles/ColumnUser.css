@@ -38,6 +38,8 @@
  
 #users {
     margin-left: 5px;
+    list-style-type: none;
+    padding: 0;
 }
 
 .btn {
@@ -122,3 +124,4 @@
     height: 150px;
    text-align:left;
 }
+

@@ -21,7 +21,7 @@ export const UsersItems = (props) => {
     const [columnMessagessCSS, setColMessagessCSS] = useState({});
     const [isOnImage, setIsOnImage] = useState("");
     const [isOnScroll, setIsOnScroll] = useState("");
-    const [show, setShow] = useState(false);
+   
     const [prevTab, setPrevTab] = useState(null);
     const [modalMessage, setModalMessage] = useState("Введите пароль");
     const [nameClickText, setNameClickText] = useState("");
@@ -71,7 +71,7 @@ export const UsersItems = (props) => {
         if ((tab in props.roomsDic) && (props.roomsDic[tab].isPassword)) {
             if (tab in props.secretRoomUsers) {
                 if (!props.secretRoomUsers[tab].includes(props.cookie)) {
-                    setShow(true)
+                   
                     setModalMessage("Введите пароль от секретной комнаты");
                 }
             }
@@ -159,9 +159,12 @@ export const UsersItems = (props) => {
         backgroundColor: "rgb(172, 194, 188)"
     }
     return (
-        <>
         <div className="row" onTouchStart={(e) => onTap(e)} onTouchMove={(e) =>moveTouch(e)} >
-            <ModalPrivateRoom modalMessage={modalMessage} setModalMessage={setModalMessage} prevTab={prevTab} activeTab={props.activeTab} setActiveTab={props.setActiveTab} userName={props.cookie} show={show} setShow={setShow} />
+             
+
+                  
+
+            <ModalPrivateRoom modalMessage={modalMessage} setModalMessage={setModalMessage} prevTab={prevTab} activeTab={props.activeTab} setActiveTab={props.setActiveTab} userName={props.cookie} />
            <div className="columnusers" id="cleft" style={columnUsersCSS } >
                <ul id="users">
                    {
@@ -199,6 +202,21 @@ export const UsersItems = (props) => {
                </ul>
            </div>
            <div className="columntext" id="cright">
+           <div
+                   aria-live="polite"
+                   aria-atomic="true"
+                   style={{
+                       position: 'absolute',
+                       height: '50px',
+                       top: 2,
+                       right: 2
+                   }}
+                >
+                    {props.notify.showing &&
+                    <Toast onClose={() => props.setNotify({user:"", showing: false})} show={props.notify.showing} delay={3000} autohide>
+                        <Toast.Body>В чат заходит:   { props.notify.user } </Toast.Body>
+                    </Toast>}
+               </div>
                <ul id="messages">
                    <Tabs defaultActiveKey="Home" unmountOnExit={false} activeKey={props.activeTab} transition={false} id="noanim-tab-example" className="chatTabs"  >
                        {
@@ -222,26 +240,12 @@ export const UsersItems = (props) => {
                
                </ul>
                 <Sidebar   sendRequest={SendRequest }  secretRoomUsers={props.secretRoomUsers} setShowModal={props.setShowModal} activeTab={props.activeTab} cookieName={props.cookie} setIsOnImage={setIsOnImage} setIsOnSounds={props.setIsOnSounds} setIsOnScroll={setIsOnScroll} isOnImage={isOnImage} isOnSounds={props.isOnSounds} isOnScroll={isOnScroll} messageText={props.messageText} setMessageText={props.setMessageText} {...props} />
-               <div
-                   aria-live="polite"
-                   aria-atomic="true"
-                   style={{
-                       position: 'absolute',
-                       height: '50px',
-                       top: 2,
-                       right: 52
-                   }}
-                >
-                    {props.show && props.enterUsers.length > 0 &&
-                    <Toast onClose={() => props.setShow(false)} show={props.show} delay={3000} autohide>
-                        <Toast.Body>В чат заходят:   {props.enterUsers.map(function (name, key) { return (<span key={key}> {name} </span>) })} </Toast.Body>
-                    </Toast>}    
-               </div>
+              
            </div>
-       
+           <TextField sendRequest={SendRequest} activeTab={props.activeTab}  {...props} />
        </div>
-             <TextField sendRequest={SendRequest} activeTab={props.activeTab}  {...props} />
-             </>
+             
+           
        );
 }
 
