@@ -97,7 +97,10 @@
     float: left;
     width: 25px;
 }
-
+.leftUserName.btn.active.btn-info {
+    mix-blend-mode: multiply;
+    border-width: 2.5px;
+}
 .leftUserName, .message-name-button-left {
     background-color: #47627d;
 }

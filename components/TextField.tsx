@@ -16,14 +16,27 @@ export const TextField = (props) => {
    
     
 
-
+function isRecipientRoom (name){
+   if(props.users[name].isroom){
+       return true;
+   }else{
+       return false;
+   }
+}
  
 
    const DoSubmit = (event) => {
        event.preventDefault();
        let Message: IMessage_FOR_Server = MessageValidator(textToSend);
        Message.fromwho = props.myName;
+      
+      if(isRecipientRoom(props.activeTab)){
+        Message.room = props.activeTab; 
+      }else{
+        Message.forwho = props.activeTab; 
+      }
 
+      
        (props.connection as HubConnection).invoke("MessageHandler", Message);
     }
 

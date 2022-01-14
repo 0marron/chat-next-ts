@@ -1,10 +1,10 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, useReducer } from 'react';
  
-import{IsUrlAndImage, IsUrlAndMP4,IsUrlAndYoutube, isNullOrEmpty, getCookie, Base64, checkIsRoom} from '../Utils' ;
+import{IsUrlAndImage, IsUrlAndMP4, IsUrlAndYoutube, isNullOrEmpty, getCookie, Base64, checkIsRoom} from '../Utils' ;
 import 'react-image-lightbox/style.css';
 import { UsersItems } from '../components/UsersItems';
 import * as signalR from '@microsoft/signalr';
- import { IMessage_FROM_Server } from '../Interfaces';
+ import { IMessage_FROM_Server, IUserInfo } from '../Interfaces';
  import { IUsersContainer, IMessagesContainer, IRoomsContainer } from '../Interfaces';
  
 
@@ -14,7 +14,7 @@ export const Chat  = () => {
     const [isLoading, setLoading] = useState(false);
     const [usersSex, setUserSex] = useState({});
     const [usersBadge, setUserBadge] = useState({});
-    const [activeTab, setActiveTab] = useState('Home');
+    const [activeTab, setActiveTab] = useState("Home");
     const [messageText, setMessageText] = useState("");
     const [enterUsers, setEnterUsers] = useState([]);
     const [show, setShow] = useState(false);
@@ -25,31 +25,54 @@ export const Chat  = () => {
     const [secretRoomUsers, setSecretRoomUsers] = useState({});
     const [pingAttempts, setPingAttempts] = useState(0);
     const [usersArr, setUsersArr] = useState([]);
- 
+     
     const [isOnSounds, setIsOnSounds] = useState("");
     const [notify, setNotify] = useState({user:"", showing: false});
     const [connection, setConnection] = useState<signalR.HubConnection | null>(null);
     const [myName, setMyName] = useState(null);
-
-    const [users, setUsers] = useState<IUsersContainer>(null);
-    const [privateMessages, setPrivateMessages] = useState<IMessagesContainer>(null);
-    const [publicMessages, setPublicMessages] = useState<IMessagesContainer>(null);
+    
+   // const [allUsers, setAllUsers] = useState<IUsersContainer>({});
+    const [privateMessages, setPrivateMessages] = useState<IMessagesContainer>({});
+    const [publicMessages, setPublicMessages] = useState<IMessagesContainer>({});
      
+    const [isMyConnectionDone, setIsMyConnectionDone] = useState(false);
 
     const usersInit: IUsersContainer = {
-        "jjjtyjt":{"sex":"m"},
-        "dtjydtjydty":{"sex":""},
-        "sehserh":{"sex":""},
-        "dtyktdkdt":{"sex":"w"},
-        "dtkdtdttjjj":{"sex":"w"},
-        "tyjtyjrtyjrtyj":{"sex":"m"},
-        "Home":{"sex":""}
+        "testuser":{"connectionid":"testuser","name":"testuser","sex":"m", "isroom": false},
+        "dtjydtjydty":{"connectionid":"dtjydtjydty","name":"dtjydtjydty","sex":"w", "isroom": false},
+        "sehserh":{"connectionid":"sehserh","name":"sehserh","sex":"w", "isroom": false},
+        "dtyktdkdt":{"connectionid":"dtyktdkdt","name":"dtyktdkdt","sex":"w", "isroom": false},
+        "dtkdtdttjjj":{"connectionid":"dtkdtdttjjj","name":"dtkdtdttjjj","sex":"m", "isroom": false},
+        "tyjtyjrtyjrtyj":{"connectionid":"tyjtyjrtyjrtyj","name":"tyjtyjrtyjrtyj","sex":"m", "isroom": false},
+        "Home":{"connectionid":"","name":"Home","sex":"m", "isroom": true},
         
     }
-  
+
+    const [allUsers, dispatch] = useReducer(reducer, {});
+    interface IActionReducer{
+        type: string;
+        payload:  IUsersContainer;
+        keyToDelete: string;
+    }
+    
+    function reducer(allUsers :IUsersContainer , action:IActionReducer) {
+        switch(action.type){
+            case "toAdd": return Object.assign(action.payload, allUsers);
+
+           
+            case "toRemove":  
+                          const next = {...allUsers};
+                          delete next[action.keyToDelete];
+                          return next;
+        }
+    }
+
+    const requirements = {
+
+    }
 
     const privateMessagesInit: IMessagesContainer = {
-        "sehserh":[{
+        "testuser":[{
             textmessage: "message test message test message test message test",
             imageurl: "",
             fromwho:"sehserh",
@@ -61,12 +84,25 @@ export const Chat  = () => {
             videoastext: "",
             videofile: null,
             imagefile: null
-        }]
+        }],
     }
 
     const publicMessagesInit: IMessagesContainer = {
         "Home":[{
             textmessage: "fbtb tftb tbbbfbtfbfb dbdb dbdbdbdbtd bdtndtndd ersrgserg",
+            imageurl: "",
+            fromwho:"jjjtyjt",
+            forwho: "",
+            audio: "",
+            room: "",
+            imageastext: "",
+            youtubeastext: "",
+            videoastext: "",
+            videofile: null,
+            imagefile: null
+        },
+        {
+            textmessage: "fbtbgb dbdbdbdbtd bdtndtndd ersrgserg",
             imageurl: "",
             fromwho:"tyjtyjrtyjrtyj",
             forwho: "",
@@ -77,7 +113,20 @@ export const Chat  = () => {
             videoastext: "",
             videofile: null,
             imagefile: null
-        }]
+        },
+        {
+            textmessage: "fbtb tfwgbtd bdtndtndd ersrgserg",
+            imageurl: "",
+            fromwho:"dtkdtdttjjj",
+            forwho: "",
+            audio: "",
+            room: "",
+            imageastext: "",
+            youtubeastext: "",
+            videoastext: "",
+            videofile: null,
+            imagefile: null
+        }] 
     }
    
 
@@ -129,8 +178,8 @@ export const Chat  = () => {
         var _sexDic = {};
         var _secretRoomsUsersArr = [];
         var _secretRoomsUsersDic = {};
-      var beepflag = false;
-      var newNamesList = [];
+        var beepflag = false;
+        var newNamesList = [];
         data.userlist.forEach((element) => {   // добавление юзеров
             _sexDic[element.name] = element.sex;
             newNamesList.push(element.name);
@@ -386,41 +435,85 @@ export const Chat  = () => {
 
     useEffect(() => {
         
-        setUsers(usersInit);
+         
         setPublicMessages(publicMessagesInit);
         setPrivateMessages(privateMessagesInit);
 
     }, []);
     
     useEffect(()=>{
-        let connect = new signalR.HubConnectionBuilder().withUrl("https://localhost:7061/chat").build()
+        let connect = new signalR.HubConnectionBuilder().withUrl("https://localhost:7061/chat?name=&sex=&isroom=false").withAutomaticReconnect().build()
         setConnection(connect);
       },[])
     
       useEffect(() => {
         if (connection) {
+
+           
+
               connection.start().then(() => {
               connection.on("PrivateResponse", (message, fromwho) => {
-                    console.log(message);  
+                    const copy = privateMessages;
+                    if( (message.forwho in copy) !== true){
+                        copy[message.forwho] = [];
+                    }
+                     copy[message.forwho].push(message);
+                     setPrivateMessages({...copy});
               });
               connection.on("PublicResponse", (message , fromwho) => {
-                    console.log(message);  
+                    const copy = publicMessages;
+                    if( (message.room in copy) !== true){
+                        copy[message.room] = [];
+                    }
+                    copy[message.room].push(message);
+                    setPublicMessages({...copy});
               });
-              connection.on("LoginNotify", (message, username: string) => {
-                  let new_value = {};
-                  new_value[username] = "";
 
-                  let all_users = Object.assign(new_value, users);
-                  setUsers(all_users);
+              connection.on("GhostLoginResponse", (userslist: IUsersContainer) => {
+                console.log("");
+               // setAllUsers({...userslist});
+                dispatch({type: "toAdd", payload: userslist, keyToDelete: null});
+              });
 
-                  setMyName(connection.connectionId);
+              connection.on("LoginNotifyGhost", (message, connectionid: string, user: IUserInfo ) => {
+                
+                     let key_value_pair = { };
+               //   all_users[connection.connectionId] = {"connectionid":connection.connectionId,"name":connection.connectionId,"sex":"w", "isroom": false};
+                     key_value_pair[user.name] = user;
+               //     setAllUsers({...all_users});
+               //   dispatch({type: "toAdd", payload: key_value_pair, keyToDelete: null});
+               setMyName(connection.connectionId);
+               connection.invoke("GettingUsersListOnce");
+
+                //   if(!isMyConnectionDone){
+                //       setMyName(connection.connectionId);
+                //       connection.invoke("GettingUsersListOnce");
+                //       console.log("");
+                //   }
+          
                   setNotify({user: message, showing: true});
-                console.log(message);  
+
+                  setIsMyConnectionDone(true);
+              
               });
+              connection.on("Disconnect", (username: string) => {
+                dispatch({type: "toRemove", payload: null, keyToDelete: username});
+            //    let all_users =  allUsers;
+            //    delete all_users[username];
+           //     setAllUsers({...all_users});
+                if(!isMyConnectionDone){
+                    setMyName(connection.connectionId);
+                }
+        
+              //  setNotify({user: message, showing: true});
+
+                setIsMyConnectionDone(true);
+            
+            });
             }) 
             .catch((error) => console.log(error));
         }
-      }, [connection]);
+      }, [connection ]);
 
     // if (!isLoading) {
     //     return (
@@ -431,7 +524,7 @@ export const Chat  = () => {
     //     );
     // } else {
         return (
-            <UsersItems users={users} publicMessages={publicMessages} privateMessages={privateMessages} myName={myName} notify={notify} setNotify={setNotify} connection={connection} isOnSounds={isOnSounds} setIsOnSounds={setIsOnSounds} cookie={cookieName} usersArr={usersArr} secretRoomUsers={secretRoomUsers} roomsDic={roomsDic} showModal={showModal} setShowModal={setShowModal} notifWoman={notifWoman} notifMan={notifMan} setNotifWoman={setNotifWoman} setNotifMan={setNotifMan} enterUsers={enterUsers} setShow={setShow} show={show} usMes={usMes} activeTab={activeTab} setActiveTab={setActiveTab} usersSex={usersSex} usersBadge={usersBadge} setUserBadge={setUserBadge} messageText={messageText} setMessageText={setMessageText} /> 
+            <UsersItems allUsers={allUsers} publicMessages={publicMessages} privateMessages={privateMessages} myName={myName} notify={notify} setNotify={setNotify} connection={connection} isOnSounds={isOnSounds} setIsOnSounds={setIsOnSounds} cookie={cookieName} usersArr={usersArr} secretRoomUsers={secretRoomUsers} roomsDic={roomsDic} showModal={showModal} setShowModal={setShowModal} notifWoman={notifWoman} notifMan={notifMan} setNotifWoman={setNotifWoman} setNotifMan={setNotifMan} enterUsers={enterUsers} setShow={setShow} show={show} usMes={usMes} activeTab={activeTab} setActiveTab={setActiveTab} usersSex={usersSex} usersBadge={usersBadge} setUserBadge={setUserBadge} messageText={messageText} setMessageText={setMessageText} /> 
         );
    // }
 }

@@ -11,6 +11,7 @@ import {AlertDismissibleExample} from './AlertDismissibleExample';
 import { Sidebar } from './Sidebar';
 import {ModalPrivateRoom} from './ModalPrivateRoom';
 import { HubConnection } from "@microsoft/signalr";
+import {IMessage_FROM_Server} from '../Interfaces';
 export const UsersItems = (props) => {
  
     const [columnMessagessCSS, setColMessagessCSS] = useState({});
@@ -22,7 +23,7 @@ export const UsersItems = (props) => {
     const [nameClickText, setNameClickText] = useState("");
     const [columnUsersCSS, setColumnUsersCSS] = useState({});
     const [startTouch, setStartTouch] = useState(0);
- 
+   
 
     const SendRequest = (gifUrl) => {
         var cookie = getCookie("Session");
@@ -58,26 +59,26 @@ export const UsersItems = (props) => {
   
     
     function oncheckedHandler(e, tab) {
-        setPrevTab(props.activeTab);
-        if ((tab in props.roomsDic) && (props.roomsDic[tab].isPassword)) {
-            if (tab in props.secretRoomUsers) {
-                if (!props.secretRoomUsers[tab].includes(props.cookie)) {
+        // setPrevTab(props.activeTab);
+        // if ((tab in props.roomsDic) && (props.roomsDic[tab].isPassword)) {
+        //     if (tab in props.secretRoomUsers) {
+        //         if (!props.secretRoomUsers[tab].includes(props.cookie)) {
                    
-                    setModalMessage("Введите пароль от секретной комнаты");
-                }
-            }
-        }
+        //             setModalMessage("Введите пароль от секретной комнаты");
+        //         }
+        //     }
+        // }
       
         props.setActiveTab(tab);
 
-        var barge = props.usersBadge;
-        barge[tab] = null;
-        props.setUserBadge(barge); 
+      //  var barge = props.usersBadge;
+     //  barge[tab] = null;
+     //   props.setUserBadge(barge); 
         
    }
 
     useEffect(() => {
-        props.setActiveTab('Home');
+       
         if (isOnScroll) {
             var cleft = document.getElementById("cright");
             cleft.scrollTop = cleft.scrollHeight;
@@ -89,7 +90,7 @@ export const UsersItems = (props) => {
             var cleft = document.getElementById("cright");
             cleft.scrollTop = cleft.scrollHeight;
         }
-    }, [props.activeTab]);
+    }, [isOnScroll, props.activeTab]);
     const changeSizeLeftMenu = () => {
         setColMessagessCSS(onRightCSS); 
         setColumnUsersCSS(onLeftCSS);
@@ -155,18 +156,18 @@ export const UsersItems = (props) => {
            <div className="columnusers" id="cleft" style={columnUsersCSS } >
                <ul id="users">
                    {
-                       Object.keys(props.users).map((name,i)=>{
+                       Object.keys(props.allUsers).map((name,i)=>{
                         return (
-                            <li key={name} id={name} >
+                            <li key={name} id={name}>
                                 <ToggleButton
+                                    id={`toggle-${name}`}
                                     className="leftUserName"
-                                    disabled={name == props.cookie ? true : false}
                                     type="checkbox"
-                                    variant="info"
-                                    checked={name == props.activeTab ? true : false}
+                                    variant="outline-primary"
+                                    checked={name === props.activeTab ? true : false}
                                     value={i}
                                     onChange={(e) => oncheckedHandler(e, name)}
-                                    style={props.users[name].sex === "w" ? womanCSS : manCSS}                                    >
+                                    style={props.allUsers[name].sex === "w" ? womanCSS : manCSS} >
                                     <Badge  >{props.usersBadge[name]}</Badge>
                                     {("Home" in props.roomsDic) && (props.roomsDic["Home"].isPassword != undefined) && name === "Home" && <img src="./crown.png" style={{ height: '20px', width: '20px' }} />} {/*костыль*/}
                                     {(name in props.roomsDic) && (props.roomsDic[name].isPassword != undefined) && props.roomsDic[name].isPassword && <img src="./lock.png" style={{ height: '20px', width: '20px' }} />} {/*костыль*/}
@@ -189,9 +190,9 @@ export const UsersItems = (props) => {
                                 return (
                                     <Tab eventKey={name} title={name} key={i} className="message-field" disabled>
                                         {
-                                            props.publicMessages[name].map((mes, mes_key) => {
+                                            props.publicMessages[name].map((message: IMessage_FROM_Server, message_key) => {
                                                 return (
-                                                    <AlertDismissibleExample key={mes_key} cookie={props.cookie} setNameClickText={setNameClickText} nameClickText={nameClickText}   secretRoomUsers={props.secretRoomUsers} usersSex={props.usersSex} username={mes.username} fromwho={mes.fromwho} textmessage={mes.textmessage} imageurl={mes.imageurl} islocal={mes.islocal} audio={mes.audio} isOnImage={isOnImage} isOnSounds={props.isOnSounds} imageastext={mes.imageastext} youtubeastext={mes.youtubeastext} videoastext={mes.videoastext} isOnScroll={isOnScroll} setIsOnImage={setIsOnImage} setIsOnSounds={props.setIsOnSounds} setIsOnScroll={setIsOnScroll} setMessageText={props.setMessageText} {...props} />
+                                                    <AlertDismissibleExample key={message_key} message={message}  setNameClickText={setNameClickText} nameClickText={nameClickText} isOnImage={isOnImage} isOnScroll={isOnScroll} setIsOnImage={setIsOnImage} setIsOnScroll={setIsOnScroll} {...props} />
                                                 );
                                             })
                                         }
@@ -201,13 +202,13 @@ export const UsersItems = (props) => {
                        }
 
                        {
-                             Object.keys(props.privateMessages).map(function (name, i) {
+                            Object.keys(props.privateMessages).map(function (name, i) {
                                 return (
                                     <Tab eventKey={name} title={name} key={i} className="message-field" disabled>
                                         {
-                                            props.publicMessages[name].map((mes, mes_key) => {
+                                            props.privateMessages[name].map((message: IMessage_FROM_Server, message_key) => {
                                                 return (
-                                                    <AlertDismissibleExample key={mes_key} cookie={props.cookie} setNameClickText={setNameClickText} nameClickText={nameClickText}   secretRoomUsers={props.secretRoomUsers} usersSex={props.usersSex} username={mes.username} fromwho={mes.fromwho} textmessage={mes.textmessage} imageurl={mes.imageurl} islocal={mes.islocal} audio={mes.audio} isOnImage={isOnImage} isOnSounds={props.isOnSounds} imageastext={mes.imageastext} youtubeastext={mes.youtubeastext} videoastext={mes.videoastext} isOnScroll={isOnScroll} setIsOnImage={setIsOnImage} setIsOnSounds={props.setIsOnSounds} setIsOnScroll={setIsOnScroll} setMessageText={props.setMessageText} {...props} />
+                                                    <AlertDismissibleExample key={message_key} message={message}  setNameClickText={setNameClickText} nameClickText={nameClickText} isOnImage={isOnImage} isOnScroll={isOnScroll} setIsOnImage={setIsOnImage} setIsOnScroll={setIsOnScroll} {...props} />
                                                 );
                                             })
                                         }

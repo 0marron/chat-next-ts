@@ -27,7 +27,7 @@ export interface IMessage_FROM_Server{
     imagefile: null;
 }
 export interface IUsersContainer{
-    [key: string]:{ sex: string}
+    [key: string]:IUserInfo
 }
 export interface IRoomsContainer{
     [key: string]:{ sex: string}
@@ -35,4 +35,11 @@ export interface IRoomsContainer{
  
 export interface IMessagesContainer{
     [key: string]: IMessage_FROM_Server[]
+}
+
+export interface IUserInfo{
+    connectionid: string;
+    name: string;
+    sex: string;
+    isroom: boolean;
 }

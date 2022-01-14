@@ -504,10 +504,7 @@ p{
     color: white;
 }
 
-.leftUserName.btn.active.btn-info {
-    mix-blend-mode: multiply;
-    border-width: 2.5px;
-}
+ 
 
 
 .row {
