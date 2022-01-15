@@ -130,7 +130,7 @@ export const checkIsRoom = (rooms: any, recipient: string) => {
 export const isNullOrEmpty = (value: string) => {
     return (!value || value == undefined || value == "" || value.length == 0);
 }
-export const useInterval = (callback, delay) => {
+export const useInterval = (callback: any, delay: number) => {
 
     const savedCallback: any = useRef();
 

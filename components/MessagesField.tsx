@@ -1,17 +1,22 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, FC } from 'react';
 import { Tab, Tabs } from 'react-bootstrap';
 import{ IsUrlAndImage, IsUrlAndMP4,IsUrlAndYoutube, getCookie, Base64, checkIsRoom} from '../Utils' ;
 import 'react-image-lightbox/style.css';
- 
 import { NotifyBadge } from '../components/NotifyBadge';
  
  
-import {AlertDismissibleExample} from './AlertDismissibleExample';
+import { Message } from './Message';
 import { Sidebar } from './Sidebar';
  
  
 import {IMessage_FROM_Server} from '../Interfaces';
-export const MessagesField = (props) => {
+ 
+interface IUsersBar{
+    setActiveTab: React.Dispatch<React.SetStateAction<string>>;
+    activeTab: string;
+}
+
+export const MessagesField:FC<IUsersBar> = (props) => {
  
     const [columnMessagessCSS, setColMessagessCSS] = useState({});
     const [isOnImage, setIsOnImage] = useState("");
@@ -23,58 +28,7 @@ export const MessagesField = (props) => {
     const [columnUsersCSS, setColumnUsersCSS] = useState({});
     const [startTouch, setStartTouch] = useState(0);
    
-
-    const SendRequest = (gifUrl) => {
-        var cookie = getCookie("Session");
-        let recipient = props.activeTab;
-        let isRoom = checkIsRoom(props.roomsDic, recipient);
-        var text = (document.getElementById("textfield") as HTMLFormElement).value;
-        if (gifUrl != null) {
-            text = gifUrl;
-        }
-        var _imageastext = IsUrlAndImage(text);
-        var _youtubeastext = IsUrlAndYoutube(text);
-        var _videoastext = IsUrlAndMP4(text);   
-
-     
-
-        fetch('/ChatPage/Send',
-            {
-                method: 'POST',
-                headers: { "Accept": "application/json", "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    recipient: recipient,
-                    sender: cookie,
-                    message: text,
-                    isThisRoom: isRoom
-                })
-            });
-
-
-            ( document.getElementById("textfield") as HTMLFormElement).value = "";
-            ( document.getElementById("textfield") as HTMLFormElement).focus();
-            ( document.getElementById("textfield") as HTMLFormElement).select();
-    }
-  
-    
-    function oncheckedHandler(e, tab) {
-        // setPrevTab(props.activeTab);
-        // if ((tab in props.roomsDic) && (props.roomsDic[tab].isPassword)) {
-        //     if (tab in props.secretRoomUsers) {
-        //         if (!props.secretRoomUsers[tab].includes(props.cookie)) {
-                   
-        //             setModalMessage("Введите пароль от секретной комнаты");
-        //         }
-        //     }
-        // }
-      
-        props.setActiveTab(tab);
-
-      //  var barge = props.usersBadge;
-     //  barge[tab] = null;
-     //   props.setUserBadge(barge); 
-        
-   }
+ 
 
     useEffect(() => {
        
@@ -124,11 +78,11 @@ export const MessagesField = (props) => {
     }
 
  
-    function onTap(event) {
+    function onTap(event: any) {
         setStartTouch ( event.touches[0].clientX);
     }
 
-    function moveTouch(event) {
+    function moveTouch(event: any) {
         var x = event.changedTouches[0].clientX;
 
         var move = startTouch - x;
@@ -159,9 +113,9 @@ export const MessagesField = (props) => {
                          return (
                              <Tab eventKey={name} title={name} key={i} className="message-field" disabled>
                                  {
-                                     props.publicMessages[name].map((message: IMessage_FROM_Server, message_key) => {
+                                     props.publicMessages[name].map((message: IMessage_FROM_Server, message_key: number) => {
                                          return (
-                                             <AlertDismissibleExample key={message_key} message={message}  setNameClickText={setNameClickText} nameClickText={nameClickText} isOnImage={isOnImage} isOnScroll={isOnScroll} setIsOnImage={setIsOnImage} setIsOnScroll={setIsOnScroll} {...props} />
+                                             <Message key={message_key} message={message}  setNameClickText={setNameClickText} nameClickText={nameClickText} isOnImage={isOnImage} isOnScroll={isOnScroll} setIsOnImage={setIsOnImage} setIsOnScroll={setIsOnScroll} {...props} />
                                          );
                                      })
                                  }
@@ -177,7 +131,7 @@ export const MessagesField = (props) => {
                                  {
                                      props.privateMessages[name].map((message: IMessage_FROM_Server, message_key) => {
                                          return (
-                                             <AlertDismissibleExample key={message_key} message={message}  setNameClickText={setNameClickText} nameClickText={nameClickText} isOnImage={isOnImage} isOnScroll={isOnScroll} setIsOnImage={setIsOnImage} setIsOnScroll={setIsOnScroll} {...props} />
+                                             <Message key={message_key} message={message}  setNameClickText={setNameClickText} nameClickText={nameClickText} isOnImage={isOnImage} isOnScroll={isOnScroll} setIsOnImage={setIsOnImage} setIsOnScroll={setIsOnScroll} {...props} />
                                          );
                                      })
                                  }

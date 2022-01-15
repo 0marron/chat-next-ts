@@ -1,18 +1,22 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, FC } from 'react';
  
  
 import { HubConnection } from "@microsoft/signalr";
 
-export const TextField = (props) => {
+interface ITextFieldSubmit
+{
+     DoSubmit: (event: React.FormEvent<HTMLFormElement>, textToSend: string) => void;
+}
+export const TextField:FC<ITextFieldSubmit> = (props) => {
     const [isShowEmoji, setShowEmoji] = useState(false);
     const [chosenEmoji, setChosenEmoji] = useState(null);
     const [textToSend, setTextToSend] = useState<string>("");
-    const onEmojiClick = (event, emojiObject) => {
-        var text = (document.getElementById("textfield")as HTMLFormElement).value;
-        (document.getElementById("textfield") as HTMLFormElement).value = text + emojiObject.emoji;
-        document.getElementById("textfield").focus();
-       // document.getElementById("textfield").select();
-    };
+    // const onEmojiClick = (event, emojiObject) => {
+    //     var text = (document.getElementById("textfield")as HTMLFormElement).value;
+    //     (document.getElementById("textfield") as HTMLFormElement).value = text + emojiObject.emoji;
+    //     document.getElementById("textfield").focus();
+    //    // document.getElementById("textfield").select();
+    // };
    
     
  

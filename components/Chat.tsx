@@ -59,13 +59,13 @@ export const Chat  = () => {
         "dtyktdkdt":{"connectionid":"dtyktdkdt","name":"dtyktdkdt","sex":"w", "isroom": false},
         "dtkdtdttjjj":{"connectionid":"dtkdtdttjjj","name":"dtkdtdttjjj","sex":"m", "isroom": false},
         "tyjtyjrtyjrtyj":{"connectionid":"tyjtyjrtyjrtyj","name":"tyjtyjrtyjrtyj","sex":"m", "isroom": false},
-        "Home":{"connectionid":"","name":"Home","sex":"m", "isroom": true},
+        "Home":{"connectionid":"","name":"Home","sex":"r", "isroom": true},
         
     }
 
   
 
-    const [listOfUsers, dispatch] = useReducer(reducer, {});
+    const [listOfUsers, dispatch] = useReducer(reducer, usersInit);
 
     interface IActionReducer{
         type: string;
@@ -86,36 +86,13 @@ export const Chat  = () => {
                           return next;
         }
     }
-    const SendRequest = (gifUrl) => {
-        var cookie = getCookie("Session");
-        let recipient =  activeTab;
-         
-        var text = (document.getElementById("textfield") as HTMLFormElement).value;
-        if (gifUrl != null) {
-            text = gifUrl;
-        }
-        var _imageastext = IsUrlAndImage(text);
-        var _youtubeastext = IsUrlAndYoutube(text);
-        var _videoastext = IsUrlAndMP4(text);   
  
-
-
-            ( document.getElementById("textfield") as HTMLFormElement).value = "";
-            ( document.getElementById("textfield") as HTMLFormElement).focus();
-            ( document.getElementById("textfield") as HTMLFormElement).select();
-    }
      
-    function isRecipientRoom (name){
-        if(listOfUsers[name].isroom){
-            return true;
-        }else{
-            return false;
-        }
-    }
-    function onTap(event) {
+   
+    function onTap(event: any) {
         setStartTouch ( event.touches[0].clientX);
     }
-    function moveTouch(event) {
+    function moveTouch(event: any) {
         var x = event.changedTouches[0].clientX;
 
         var move = startTouch - x;
@@ -227,11 +204,6 @@ export const Chat  = () => {
         let Message: IMessage_FOR_Server = MessageValidator(textToSend);
         Message.fromwho =  myName;
  
-       if(isRecipientRoom(activeTab)){
-         Message.room = activeTab; 
-       }else{
-         Message.forwho = activeTab; 
-       }
  
         connection.invoke("MessageHandler", Message);
      }
@@ -290,7 +262,7 @@ export const Chat  = () => {
 
               connection.on("LoginNotifyGhost", (message, connectionid: string, user: IUserInfo ) => {
                
-                     let key_value_pair = { };
+                     let key_value_pair: { [key: string]: {} } = { };
                //   all_users[connection.connectionId] = {"connectionid":connection.connectionId,"name":connection.connectionId,"sex":"w", "isroom": false};
                      key_value_pair[user.name] = user;
                //     setAllUsers({...all_users});
@@ -340,9 +312,9 @@ export const Chat  = () => {
         return (
             <div className="row" onTouchStart={(e) => onTap(e)} onTouchMove={(e) =>moveTouch(e)} >
                  <ModalPrivateRoom modalMessage={modalMessage} setModalMessage={setModalMessage} prevTab={prevTab} showModal={showModal} setShowModal={setShowModal} setShow={setShow} show={show}/>
-                 <UsersBar listOfUsers={listOfUsers} publicMessages={publicMessages} privateMessages={privateMessages} myName={myName} myNameRef={myNameRef} notify={notify} setNotify={setNotify} connection={connection} isOnSounds={isOnSounds} setIsOnSounds={setIsOnSounds} usersArr={usersArr} secretRoomUsers={secretRoomUsers} roomsDic={roomsDic}   notifWoman={notifWoman} notifMan={notifMan} setNotifWoman={setNotifWoman} setNotifMan={setNotifMan} enterUsers={enterUsers} activeTab={activeTab} setActiveTab={setActiveTab} usersSex={usersSex} usersBadge={usersBadge} setUserBadge={setUserBadge} messageText={messageText} setMessageText={setMessageText}/>
+                 <UsersBar listOfUsers={listOfUsers} myNameRef={myNameRef} activeTab={activeTab} setActiveTab={setActiveTab} />
                  <MessagesField publicMessages={publicMessages} privateMessages={privateMessages} myNameRef={myNameRef} notify={notify} setNotify={setNotify} connection={connection} isOnSounds={isOnSounds} setIsOnSounds={setIsOnSounds}   usersArr={usersArr} secretRoomUsers={secretRoomUsers} roomsDic={roomsDic}   notifWoman={notifWoman} notifMan={notifMan} setNotifWoman={setNotifWoman} setNotifMan={setNotifMan} enterUsers={enterUsers}    activeTab={activeTab} setActiveTab={setActiveTab} usersSex={usersSex} usersBadge={usersBadge} setUserBadge={setUserBadge} messageText={messageText} setMessageText={setMessageText} />
-                 <TextField DoSubmit={DoSubmit} sendRequest={SendRequest} myNameRef={myNameRef} connection={connection} activeTab={activeTab} listOfUsers={listOfUsers}/>
+                 <TextField DoSubmit={DoSubmit}/>
             </div>
          );
    // }

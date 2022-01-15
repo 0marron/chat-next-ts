@@ -1,32 +1,32 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, FC } from 'react';
 import { ToggleButton, Badge  } from 'react-bootstrap';
 import{ Base64 } from '../Utils' ;
 import 'react-image-lightbox/style.css';
- 
+ import{ IUsersContainer }from '../Interfaces';
 import { TextField } from '../components/TextField';
  
 import {ModalPrivateRoom} from './ModalPrivateRoom';
-export const UsersBar = (props) => {
+import { Style } from 'util';
+
+interface IUsersBar{
+    setActiveTab: React.Dispatch<React.SetStateAction<string>>;
+    activeTab: string;
+}
+interface IlistOfUsers{
+    listOfUsers: IUsersContainer;
+}
+interface ImyNameRef {
+    myNameRef: React.MutableRefObject<string>;
+}
+ 
+export const UsersBar: FC< IUsersBar & IlistOfUsers & ImyNameRef > = (props) => {
     const [isOnScroll, setIsOnScroll] = useState("");
     const [prevTab, setPrevTab] = useState(null);
     const [modalMessage, setModalMessage] = useState("Введите пароль");
     const [columnUsersCSS, setColumnUsersCSS] = useState({});
     const [startTouch, setStartTouch] = useState(0);
 
-    const SendRequest = (gifUrl) => {
-        var text = (document.getElementById("textfield") as HTMLFormElement).value;
-        if (gifUrl != null) {
-            text = gifUrl;
-        }
-            ( document.getElementById("textfield") as HTMLFormElement).value = "";
-            ( document.getElementById("textfield") as HTMLFormElement).focus();
-            ( document.getElementById("textfield") as HTMLFormElement).select();
-    }
-  
-    
-    function oncheckedHandler(e, tab) {
-        props.setActiveTab(tab);
-   }
+   
 
     useEffect(() => {
         if (isOnScroll) {
@@ -71,11 +71,11 @@ export const UsersBar = (props) => {
     }
 
  
-    function onTap(event) {
+    function onTap(event:any) {
         setStartTouch ( event.touches[0].clientX);
     }
 
-    function moveTouch(event) {
+    function moveTouch(event:any) {
         var x = event.changedTouches[0].clientX;
 
         var move = startTouch - x;
@@ -90,18 +90,22 @@ export const UsersBar = (props) => {
         }
         console.log(move)
     }
-    const womanCSS = {
-        backgroundColor: "rgb(255, 182, 193)"
+    interface ICSSUsers{
+        [index: string]: React.CSSProperties
     }
-    const manCSS = {
-        backgroundColor: "rgb(172, 194, 188)"
+    const userCSS: ICSSUsers = {
+        "w":{backgroundColor: "rgb(255, 182, 193)"},
+        "m":{backgroundColor: "rgb(172, 194, 188)"},
+        "r":{backgroundColor: "green"}
     }
+  
+
     return (
       
            <div className="columnusers" id="cleft" style={columnUsersCSS } >
                <ul id="users">
                    {
-                       Object.keys(props.listOfUsers).map((name,i)=>{
+                       Object.keys(props.listOfUsers).map((name: string,i)=>{
                         return (
                             <li key={name} id={name}>
                                 <ToggleButton
@@ -113,14 +117,11 @@ export const UsersBar = (props) => {
                                     variant="outline-primary"
                                     checked={name === props.activeTab ? true : false}
                                     value={i}
-                                    onChange={(e) => oncheckedHandler(e, name)}
-                                    style={props.listOfUsers[name].sex === "w" ? womanCSS : manCSS} >
-                                    <Badge  >{props.usersBadge[name]}</Badge>
-                                    {("Home" in props.roomsDic) && (props.roomsDic["Home"].isPassword != undefined) && name === "Home" && <img src="./crown.png" style={{ height: '20px', width: '20px' }} />} {/*костыль*/}
-                                    {(name in props.roomsDic) && (props.roomsDic[name].isPassword != undefined) && props.roomsDic[name].isPassword && <img src="./lock.png" style={{ height: '20px', width: '20px' }} />} {/*костыль*/}
-
+                                    onChange={(e) => props.setActiveTab(name)}
+                                    style={userCSS[props.listOfUsers[name].sex]}
+                                    >
+                                 
                                     {Base64.decode(name)}
-                                    {(name in props.roomsDic) && (props.roomsDic[name].isPassword != undefined) && !props.roomsDic[name].isPassword && <img src="./open.png" style={{ height: '20px', width: '20px' }} />} {/*костыль*/}
                                 </ToggleButton>
                             </li>
                         );

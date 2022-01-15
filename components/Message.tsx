@@ -3,7 +3,7 @@ import Lightbox from 'react-image-lightbox';
 import React, { useEffect, useState, useMemo, FC } from 'react';
 import { Button, Alert, DropdownButton, Dropdown, ButtonGroup } from 'react-bootstrap';
 import {Base64, getCookie,isNullOrEmpty } from '../Utils'
-export const AlertDismissibleExample: FC = (props: any) => {
+export const Message: FC = (props: any) => {
     function islocalFunc(islocal: boolean) {
         if (islocal) {
             return true;
