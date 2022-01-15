@@ -1,12 +1,12 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { MessageValidator } from '../Utils';
-import { IMessage_FOR_Server } from '../Interfaces';
+ 
+ 
 import { HubConnection } from "@microsoft/signalr";
 
 export const TextField = (props) => {
     const [isShowEmoji, setShowEmoji] = useState(false);
     const [chosenEmoji, setChosenEmoji] = useState(null);
-    const [textToSend, setTextToSend] = useState<string | null>(null);
+    const [textToSend, setTextToSend] = useState<string>("");
     const onEmojiClick = (event, emojiObject) => {
         var text = (document.getElementById("textfield")as HTMLFormElement).value;
         (document.getElementById("textfield") as HTMLFormElement).value = text + emojiObject.emoji;
@@ -15,30 +15,10 @@ export const TextField = (props) => {
     };
    
     
-
-function isRecipientRoom (name){
-   if(props.users[name].isroom){
-       return true;
-   }else{
-       return false;
-   }
-}
+ 
  
 
-   const DoSubmit = (event) => {
-       event.preventDefault();
-       let Message: IMessage_FOR_Server = MessageValidator(textToSend);
-       Message.fromwho = props.myName;
-      
-      if(isRecipientRoom(props.activeTab)){
-        Message.room = props.activeTab; 
-      }else{
-        Message.forwho = props.activeTab; 
-      }
-
-      
-       (props.connection as HubConnection).invoke("MessageHandler", Message);
-    }
+ 
 
     const emojiClickHandler = () => {
         setShowEmoji(!isShowEmoji);
@@ -59,7 +39,7 @@ function isRecipientRoom (name){
    return (
     <>
        <div className="underchat">
-            <form className="loginform" action="/Send" method="post" onSubmit={(e) => DoSubmit(e)}>
+            <form className="loginform" action="/Send" method="post" onSubmit={(e) => props.DoSubmit(e, textToSend)}>
                 <input id="textfield" className="textfield" type="text" placeholder="" value={textToSend} onChange={(e)=> {setTextToSend(e.target.value)}} autoComplete="off" name="temp" style={{ paddingRight:'50px' }} required />
                 <input className="sendbutton" type="submit" value="Send"   />
             </form>

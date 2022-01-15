@@ -85,7 +85,7 @@ export const AlertDismissibleExample: FC = (props: any) => {
                         <Button variant="info"  className="message-name-button-right"> {props.usersSex[props.cookie] != undefined && <img src={props.usersSex[props.cookie] == "w" ? "./Sex-Female.png" : "./Sex-Male.png"} style={{ height: '20px', width: '20px' }} />}     {cookieDecode} </Button>
                     )} */}
                         
-                            <Button variant="info" className="message-name-button-left" onClick={(e) => onClickHandler(e, fromwhoDecode)}>   {props.usersSex[props.fromwho] != undefined && <img src={props.usersSex[props.fromwho] == "w" ? "./Sex-Female.png" : "./Sex-Male.png"} style={{ height: '20px', width: '20px' }} />} {props.message.fromwho} </Button>
+                            <Button variant="info" className="message-name-button-left" onClick={(e) => onClickHandler(e, fromwhoDecode)}>   {props.usersSex[props.fromwho] != undefined && <img src={props.usersSex[props.fromwho] == "w" ? "./Sex-Female.png" : "./Sex-Male.png"} style={{ height: '20px', width: '20px' }} />} { props.myName === props.message.fromwho? props.message.fromwho: props.message.forwho } </Button>
                             <DropdownButton as={ButtonGroup} title=" " id="bg-vertical-dropdown-1">
                                 <Dropdown.Item eventKey="1" onSelect={(e) => onSelectHandler(e, props.fromwho)} >Написать в приват</Dropdown.Item>
                                 <Dropdown.Item eventKey="2">Заблокировать</Dropdown.Item>

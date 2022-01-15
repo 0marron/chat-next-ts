@@ -1,13 +1,16 @@
-import React, { useEffect, useState, useMemo, useReducer } from 'react';
+import React, { useEffect, useState, useRef, useReducer  } from 'react';
  
 import{IsUrlAndImage, IsUrlAndMP4, IsUrlAndYoutube, isNullOrEmpty, getCookie, Base64, checkIsRoom} from '../Utils' ;
 import 'react-image-lightbox/style.css';
-import { UsersItems } from '../components/UsersItems';
-import * as signalR from '@microsoft/signalr';
- import { IMessage_FROM_Server, IUserInfo } from '../Interfaces';
- import { IUsersContainer, IMessagesContainer, IRoomsContainer } from '../Interfaces';
  
-
+import { UsersBar } from './UsersBar';
+import * as signalR from '@microsoft/signalr';
+ import { IMessage_FROM_Server,IMessage_FOR_Server, IUserInfo } from '../Interfaces';
+ import { IUsersContainer, IMessagesContainer, IRoomsContainer } from '../Interfaces';
+ import { TextField } from '../components/TextField';
+ import { ModalPrivateRoom } from './ModalPrivateRoom';
+ import { MessagesField } from './MessagesField';
+ import { MessageValidator } from '../Utils';
 export const Chat  = () => {
  
     const [usMes, setUsMes] = useState({});
@@ -25,7 +28,7 @@ export const Chat  = () => {
     const [secretRoomUsers, setSecretRoomUsers] = useState({});
     const [pingAttempts, setPingAttempts] = useState(0);
     const [usersArr, setUsersArr] = useState([]);
-     
+   
     const [isOnSounds, setIsOnSounds] = useState("");
     const [notify, setNotify] = useState({user:"", showing: false});
     const [connection, setConnection] = useState<signalR.HubConnection | null>(null);
@@ -36,6 +39,18 @@ export const Chat  = () => {
     const [publicMessages, setPublicMessages] = useState<IMessagesContainer>({});
      
     const [isMyConnectionDone, setIsMyConnectionDone] = useState(false);
+    const [startTouch, setStartTouch] = useState(0);
+
+    const [columnMessagessCSS, setColMessagessCSS] = useState({});
+    const [isOnImage, setIsOnImage] = useState("");
+    const [isOnScroll, setIsOnScroll] = useState("");
+   
+    const [prevTab, setPrevTab] = useState(null);
+    const [modalMessage, setModalMessage] = useState("Введите пароль");
+    const [nameClickText, setNameClickText] = useState("");
+    const [columnUsersCSS, setColumnUsersCSS] = useState({});
+  
+
 
     const usersInit: IUsersContainer = {
         "testuser":{"connectionid":"testuser","name":"testuser","sex":"m", "isroom": false},
@@ -48,27 +63,104 @@ export const Chat  = () => {
         
     }
 
-    const [allUsers, dispatch] = useReducer(reducer, {});
+  
+
+    const [listOfUsers, dispatch] = useReducer(reducer, {});
+
     interface IActionReducer{
         type: string;
         payload:  IUsersContainer;
         keyToDelete: string;
     }
-    
-    function reducer(allUsers :IUsersContainer , action:IActionReducer) {
+ 
+  
+
+    function reducer(listOfUsers :IUsersContainer , action:IActionReducer) {
         switch(action.type){
-            case "toAdd": return Object.assign(action.payload, allUsers);
+            case "toAdd": return Object.assign(action.payload, listOfUsers);
 
            
             case "toRemove":  
-                          const next = {...allUsers};
+                          const next = {...listOfUsers};
                           delete next[action.keyToDelete];
                           return next;
         }
     }
+    const SendRequest = (gifUrl) => {
+        var cookie = getCookie("Session");
+        let recipient =  activeTab;
+         
+        var text = (document.getElementById("textfield") as HTMLFormElement).value;
+        if (gifUrl != null) {
+            text = gifUrl;
+        }
+        var _imageastext = IsUrlAndImage(text);
+        var _youtubeastext = IsUrlAndYoutube(text);
+        var _videoastext = IsUrlAndMP4(text);   
+ 
 
-    const requirements = {
 
+            ( document.getElementById("textfield") as HTMLFormElement).value = "";
+            ( document.getElementById("textfield") as HTMLFormElement).focus();
+            ( document.getElementById("textfield") as HTMLFormElement).select();
+    }
+     
+    function isRecipientRoom (name){
+        if(listOfUsers[name].isroom){
+            return true;
+        }else{
+            return false;
+        }
+    }
+    function onTap(event) {
+        setStartTouch ( event.touches[0].clientX);
+    }
+    function moveTouch(event) {
+        var x = event.changedTouches[0].clientX;
+
+        var move = startTouch - x;
+        if (move < -100) {
+            console.log("open");
+            changeSizeLeftMenu();
+             
+        }
+        if (move > 100) {
+            console.log("close");
+            changeSizeRightMenu();
+        }
+        console.log(move)
+    }
+    const changeSizeLeftMenu = () => {
+        setColMessagessCSS(onRightCSS); 
+        setColumnUsersCSS(onLeftCSS);
+         
+    }
+    const changeSizeRightMenu = () => {
+        setColMessagessCSS(offRightCSS); 
+        setColumnUsersCSS(offLeftCSS);
+        
+    }
+    const onLeftCSS = {
+        width: "45%",
+        position: "fixed",
+        overflow: "auto"  
+    }
+    const onRightCSS = {
+        width: "55%",
+        position: "fixed",
+        overflow: "auto" 
+      
+    }
+    const offLeftCSS = {
+        width: "85px",
+        position: "fixed",
+        overflow: "auto" 
+    }
+    const offRightCSS = {
+        width: "calc(100% - 85px)",
+        position: "fixed",
+        overflow: "auto" 
+        
     }
 
     const privateMessagesInit: IMessagesContainer = {
@@ -128,337 +220,58 @@ export const Chat  = () => {
             imagefile: null
         }] 
     }
-   
+    const myNameRef = useRef("");
 
-    var cookieName = getCookie("Session");
-      
-    
-   
-     async function fetchStartMessages( ) {
-         const response = await fetch('/ChatPage/StartMessages', {
-             method: 'POST',
-             headers: { "Accept": "application/json", "Content-Type": "application/json" },
-             body: JSON.stringify({})
-         }) 
-         return response.json();
-    }
-
-
-    function removeItemOnce(arr, value) {
-        var index = arr.indexOf(value);
-        if (index > -1) {
-            arr.splice(index, 1);
-        }
-        return arr;
-    }
-
-    async function dataHandler(data) {
-
-        let str_ = JSON.stringify(data);
-        var _badgeDic = usersBadge;
-        if (Object.keys(_badgeDic).length === 0) {
-            data.userlist.forEach((element) => { 
-                    _badgeDic[element.name] = null; //fill badge
-            })
-            data.secretrooms.forEach((element) => {
-                    _badgeDic[element.roomname] = null; // fill badge
-            })
-            data.publicrooms.forEach((element) => {
-                _badgeDic[element.roomname] = null; // fill badge
-            })
-      }
-
-      var users_and_rooms_names_arr = [];
-      if (usersArr.length !== 0) {
-          users_and_rooms_names_arr = usersArr;
-      }
-  
-
-        var _roomsDic = {};
-        var _sexDic = {};
-        var _secretRoomsUsersArr = [];
-        var _secretRoomsUsersDic = {};
-        var beepflag = false;
-        var newNamesList = [];
-        data.userlist.forEach((element) => {   // добавление юзеров
-            _sexDic[element.name] = element.sex;
-            newNamesList.push(element.name);
-            if (!users_and_rooms_names_arr.includes(element.name)) {
-                users_and_rooms_names_arr.push(element.name);
-            }
-             
-        })
-      data.publicrooms.forEach((element) => { // добавление комнат
-          newNamesList.push(element.roomname);
-          if (!users_and_rooms_names_arr.includes(element.roomname)) {
-              users_and_rooms_names_arr.push(element.roomname);
-          }
-            _roomsDic[element.roomname] = { name: element.roomname, isPassword: false };
-        })
-      data.secretrooms.forEach((element) => { // добавление комнат
-          newNamesList.push(element.roomname);
-            element.currentmembers.forEach((user) => {
-                _secretRoomsUsersArr.push(user);
-            })
-            _secretRoomsUsersDic[element.roomname] = _secretRoomsUsersArr;
-            if (!users_and_rooms_names_arr.includes(element.roomname)) {
-                users_and_rooms_names_arr.push(element.roomname);
-            }
-            _roomsDic[element.roomname] = { name: element.roomname, isPassword: true };
-        })
-
-    
-       
-       
-      var elementsToDelete = [];
-      users_and_rooms_names_arr.forEach((element) => {
-          if (!newNamesList.includes(element)) {
-              elementsToDelete.push(element);
-          }
-      })
-
-      elementsToDelete.forEach((item) => {
-          users_and_rooms_names_arr = removeItemOnce(users_and_rooms_names_arr, item);
-      })
-   
-   
-
-      
-
-
-
-        setSecretRoomUsers(_secretRoomsUsersDic);
-        setRoomsDic(_roomsDic);
-        setUserSex(_sexDic);
-      
-
-        var _messages = data.messages;
-       
+    const DoSubmit = (event: React.FormEvent<HTMLFormElement>, textToSend: string) => {
+        event.preventDefault();
+        let Message: IMessage_FOR_Server = MessageValidator(textToSend);
+        Message.fromwho =  myName;
  
-        
-     //   var obj = Object.assign({}, usMes);
-        var obj = usMes;
-
-        var objUsersArr = usersArr;
-      
-        if (Object.keys(obj).length === 0 && obj.constructor === Object) {
-
-            users_and_rooms_names_arr.forEach((element) => { //fulfill new users
-                obj[element] = [];
-                objUsersArr.push(element);
-            })
-        }
-        var usersForToasts = [];
-
-        users_and_rooms_names_arr.forEach((element) => { //add coming users to object key value list
-             
-                if (!(element in obj)) {//если пользователя нет в словаре - добавить в словарь и в список юзеров
-                    obj[element] = [];
-                    
-                    _badgeDic[element] = null; // fill badge
-
-                    if (_sexDic[element] == "m" && notifMan) {
-                        usersForToasts.push(Base64.decode(element) + "\n");
-                        setShow(true)
-                    }
-                    if (_sexDic[element] == "w" && notifWoman) {
-                        usersForToasts.push(Base64.decode(element) + "\n");
-                        setShow(true)
-                    }
-                    //TODO добавляем юзеров для нотификации. валидируем с настройками
-                  
-                     
-                }   
-        })
-        users_and_rooms_names_arr.forEach((element) => { //add coming  users name to array
-            if (!objUsersArr.includes(element)) {
-                objUsersArr.push(element);
-            }
-        
-        })
-        //_users.forEach((element) => { //add new user
-        //    if (!(element in obj)) {
-        //        obj[element] = [];
-        //        _badgeDic[element] = null; // fill badge
-        //    }
-        //})
-
-        if (notifWoman || notifMan) {
-             setEnterUsers(usersForToasts);
-        }
-  
-        _messages.forEach((element) => {  //add message
-
-             
-
-            if (IsUrlAndImage(element.textmessage)) {
-                element.imageastext = element.textmessage;
-            }
-            if (IsUrlAndYoutube(element.textmessage) !=null) {
-                element.youtubeastext = IsUrlAndYoutube(element.textmessage);
-            }
-
-            if (!isNullOrEmpty(element.chatroomname)) { // если сообщение для комнаты 
-                var messFrom = element.chatroomname
-
-
-
-                if (messFrom in obj) {
-                    if (activeTab != messFrom) {
-                        _badgeDic[messFrom] = _badgeDic[messFrom] + 1;   // add barge
-                       
-                        //for (var item in obj) {
-                        //    if (item == messFrom) {
-                        //        var _value = obj[messFrom];
-                        //        var _key = item;
-                        //        delete (obj[_key]);
-
-                        //        var newObj = {};
-                        //        newObj[_key] = _value;
-
-                        //        obj = Object.assign(   newObj,obj);
-                        //    }
-                        //}
-                        //objUsersArr.forEach(function (item, i) {
-                        //    if (item === messFrom) {
-                        //        objUsersArr.splice(i, 1);
-                        //        objUsersArr.unshift(item);
-                        //    }
-                        //});
-
-                    }
-                     obj[messFrom].push(element);
-                }
-            }
-            if (isNullOrEmpty(element.chatroomname)) { // если сообщение в личку
-                var messFrom = element.fromwho;
-                if (messFrom in obj) {
-                    if (activeTab != messFrom) {
-                        
-                        
-                        //for (var item in obj) {
-                        //    if (item == messFrom) {
-                        //        var _value = obj[messFrom];
-                        //        var _key = item;
-                        //        delete (obj[_key]);
-
-                        //        var newObj = {};
-                        //        newObj[_key] = _value;
-
-                        //        obj = Object.assign(newObj, obj);
-                        //    }
-                        //}
-                        if (isOnSounds) {
-                            var audio = new Audio("/blip.wav");
-                            audio.play();
-                            beepflag = false;
-                        }
-                       
-                        users_and_rooms_names_arr.forEach(function (item, i) {
-                            if (item === messFrom) {
-                                users_and_rooms_names_arr.splice(i, 1);
-                                users_and_rooms_names_arr.unshift(item);
-                      
-                            }
-                        });
-                        _badgeDic[messFrom] = _badgeDic[messFrom] + 1;  // add barge
-                      //  users_and_rooms_names_arr = objUsersArr;
-                    }
-                    obj[messFrom].push(element);
-                }
-            }
-             
-        }) 
+       if(isRecipientRoom(activeTab)){
+         Message.room = activeTab; 
+       }else{
+         Message.forwho = activeTab; 
+       }
  
-        //var copy = Object.assign({}, obj);
-
-
-       
-        // if (!isLoadStartMessagess) {
-        //      fetchStartMessages().then(function (data) {
-        //          data.forEach((m) => {
-        //              var _imageastext = IsUrlAndImage(m.textmessage);
-        //              var _youtubeastext = IsUrlAndYoutube(m.textmessage);
-        //              var _videoastext = IsUrlAndMP4(m.textmessage);
-        //              m.imageastext = _imageastext;
-        //              m.youtubeastext = _youtubeastext;
-        //              m.videoastext = _videoastext;
-        //              obj["Home"].push(m);
-        //          })
-        //          setIsLoadStartMessagess(true);
-        //     });
-          
-        // }
-      for (let key in obj) {
-          if (!users_and_rooms_names_arr.includes(key)) {
-              //console.log("delete")
-              // delete (obj[key]);
-
-              objUsersArr.forEach(function (item, i) {
-                  if (item == key) {
-                      objUsersArr.splice(i, 1);
-                  }
-              })
-              //if (index === -1) { alert(330) }
-
-
-              obj[key] = [];
-              if (activeTab === key) {
-                  setActiveTab("Home");
-              }
-          }
-      }
-       
-        
-        setUsMes(obj);
-        //   setUsersArr(usersArr.filter((name) => !usersToDelete.includes(name)));
-        setUserBadge(_badgeDic);
-        setUsersArr(users_and_rooms_names_arr);
-      
-      
-        setLoading(true);
-      
-    }
-
-   
+        connection.invoke("MessageHandler", Message);
+     }
  
 
- 
- 
-   // function ghostLogin(){
-        // fetch('https://localhost:7061/login/ghost').then(function(response) {
-        //     return response.text().then(function(text) {
-        //       setGhostName(text);
-        //     });
-        //   });
-   // }
-
-    useEffect(() => {
-        
-         
+    useEffect(() => {   
         setPublicMessages(publicMessagesInit);
         setPrivateMessages(privateMessagesInit);
-
     }, []);
     
-    useEffect(()=>{
-        let connect = new signalR.HubConnectionBuilder().withUrl("https://localhost:7061/chat?name=&sex=&isroom=false").withAutomaticReconnect().build()
+    useEffect(() => {
+        let connect = new signalR.HubConnectionBuilder().withUrl("https://localhost:7061/chat?name=&sex=&isroom=false").build()
         setConnection(connect);
       },[])
     
-      useEffect(() => {
+    useEffect(() => {
         if (connection) {
-
            
-
+          
               connection.start().then(() => {
-              connection.on("PrivateResponse", (message, fromwho) => {
+              connection.on("PrivateResponse", (message: IMessage_FROM_Server , fromwho) => {
                     const copy = privateMessages;
-                    if( (message.forwho in copy) !== true){
-                        copy[message.forwho] = [];
+               
+                  
+                    if(message.fromwho === myNameRef.current){
+                        if( (message.forwho in copy) !== true){
+                            copy[message.forwho] = [];
+                        }
+                         copy[message.forwho].push(message);
+                         setPrivateMessages({...copy});
                     }
-                     copy[message.forwho].push(message);
-                     setPrivateMessages({...copy});
+                    if(message.fromwho !== myNameRef.current){
+                        if( (message.fromwho in copy) !== true){
+                            copy[message.fromwho] = [];
+                        }
+                         
+                         copy[message.fromwho].push(message);
+                         setPrivateMessages({...copy});
+                    }
+                    
               });
               connection.on("PublicResponse", (message , fromwho) => {
                     const copy = publicMessages;
@@ -471,27 +284,28 @@ export const Chat  = () => {
 
               connection.on("GhostLoginResponse", (userslist: IUsersContainer) => {
                 console.log("");
-               // setAllUsers({...userslist});
+              
                 dispatch({type: "toAdd", payload: userslist, keyToDelete: null});
               });
 
               connection.on("LoginNotifyGhost", (message, connectionid: string, user: IUserInfo ) => {
-                
+               
                      let key_value_pair = { };
                //   all_users[connection.connectionId] = {"connectionid":connection.connectionId,"name":connection.connectionId,"sex":"w", "isroom": false};
                      key_value_pair[user.name] = user;
                //     setAllUsers({...all_users});
                //   dispatch({type: "toAdd", payload: key_value_pair, keyToDelete: null});
-               setMyName(connection.connectionId);
+              
                connection.invoke("GettingUsersListOnce");
 
-                //   if(!isMyConnectionDone){
-                //       setMyName(connection.connectionId);
-                //       connection.invoke("GettingUsersListOnce");
-                //       console.log("");
-                //   }
+                   if(!isMyConnectionDone){
+                        myNameRef.current = connection.connectionId;
+                        setMyName(connection.connectionId);
+                        connection.invoke("GettingUsersListOnce");
+                        console.log("");
+                   }
           
-                  setNotify({user: message, showing: true});
+                //  setNotify({user: message, showing: true});
 
                   setIsMyConnectionDone(true);
               
@@ -502,7 +316,7 @@ export const Chat  = () => {
             //    delete all_users[username];
            //     setAllUsers({...all_users});
                 if(!isMyConnectionDone){
-                    setMyName(connection.connectionId);
+                  //  setMyName(connection.connectionId);
                 }
         
               //  setNotify({user: message, showing: true});
@@ -513,7 +327,7 @@ export const Chat  = () => {
             }) 
             .catch((error) => console.log(error));
         }
-      }, [connection ]);
+      }, [connection, myName]);
 
     // if (!isLoading) {
     //     return (
@@ -524,8 +338,13 @@ export const Chat  = () => {
     //     );
     // } else {
         return (
-            <UsersItems allUsers={allUsers} publicMessages={publicMessages} privateMessages={privateMessages} myName={myName} notify={notify} setNotify={setNotify} connection={connection} isOnSounds={isOnSounds} setIsOnSounds={setIsOnSounds} cookie={cookieName} usersArr={usersArr} secretRoomUsers={secretRoomUsers} roomsDic={roomsDic} showModal={showModal} setShowModal={setShowModal} notifWoman={notifWoman} notifMan={notifMan} setNotifWoman={setNotifWoman} setNotifMan={setNotifMan} enterUsers={enterUsers} setShow={setShow} show={show} usMes={usMes} activeTab={activeTab} setActiveTab={setActiveTab} usersSex={usersSex} usersBadge={usersBadge} setUserBadge={setUserBadge} messageText={messageText} setMessageText={setMessageText} /> 
-        );
+            <div className="row" onTouchStart={(e) => onTap(e)} onTouchMove={(e) =>moveTouch(e)} >
+                 <ModalPrivateRoom modalMessage={modalMessage} setModalMessage={setModalMessage} prevTab={prevTab} showModal={showModal} setShowModal={setShowModal} setShow={setShow} show={show}/>
+                 <UsersBar listOfUsers={listOfUsers} publicMessages={publicMessages} privateMessages={privateMessages} myName={myName} myNameRef={myNameRef} notify={notify} setNotify={setNotify} connection={connection} isOnSounds={isOnSounds} setIsOnSounds={setIsOnSounds} usersArr={usersArr} secretRoomUsers={secretRoomUsers} roomsDic={roomsDic}   notifWoman={notifWoman} notifMan={notifMan} setNotifWoman={setNotifWoman} setNotifMan={setNotifMan} enterUsers={enterUsers} activeTab={activeTab} setActiveTab={setActiveTab} usersSex={usersSex} usersBadge={usersBadge} setUserBadge={setUserBadge} messageText={messageText} setMessageText={setMessageText}/>
+                 <MessagesField publicMessages={publicMessages} privateMessages={privateMessages} myNameRef={myNameRef} notify={notify} setNotify={setNotify} connection={connection} isOnSounds={isOnSounds} setIsOnSounds={setIsOnSounds}   usersArr={usersArr} secretRoomUsers={secretRoomUsers} roomsDic={roomsDic}   notifWoman={notifWoman} notifMan={notifMan} setNotifWoman={setNotifWoman} setNotifMan={setNotifMan} enterUsers={enterUsers}    activeTab={activeTab} setActiveTab={setActiveTab} usersSex={usersSex} usersBadge={usersBadge} setUserBadge={setUserBadge} messageText={messageText} setMessageText={setMessageText} />
+                 <TextField DoSubmit={DoSubmit} sendRequest={SendRequest} myNameRef={myNameRef} connection={connection} activeTab={activeTab} listOfUsers={listOfUsers}/>
+            </div>
+         );
    // }
 }
 

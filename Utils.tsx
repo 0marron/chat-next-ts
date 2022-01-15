@@ -42,7 +42,6 @@ export const IsUrlAndYoutube = (url: string) => {
     if (url === null) {
         return false;
     }
-    console.log(".......IsUrlAndYoutube");
     if (url === null) {
         return null;
     }
@@ -67,8 +66,7 @@ export const IsUrlAndImage = (str: string) => {
     if (str.includes("https://s3-us-west-1.amazonaws.com/porngifs/img/")) {
         return true;
     }
-     
-    console.log("IsUrlAndImage");
+   
     if (str === null) {
         return false;
     }
