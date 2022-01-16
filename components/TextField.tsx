@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo, FC } from 'react';
+import React, { useEffect, useState, useRef, FC } from 'react';
  
  
 import { HubConnection } from "@microsoft/signalr";
@@ -6,11 +6,13 @@ import { HubConnection } from "@microsoft/signalr";
 interface ITextFieldSubmit
 {
      DoSubmit: (event: React.FormEvent<HTMLFormElement>, textToSend: string) => void;
+     textfieldRef: React.LegacyRef<HTMLInputElement>;
+ 
 }
 export const TextField:FC<ITextFieldSubmit> = (props) => {
     const [isShowEmoji, setShowEmoji] = useState(false);
     const [chosenEmoji, setChosenEmoji] = useState(null);
-    const [textToSend, setTextToSend] = useState<string>("");
+    const [textfieldValue, setTextfieldValue] = useState<string>("");
     // const onEmojiClick = (event, emojiObject) => {
     //     var text = (document.getElementById("textfield")as HTMLFormElement).value;
     //     (document.getElementById("textfield") as HTMLFormElement).value = text + emojiObject.emoji;
@@ -43,8 +45,8 @@ export const TextField:FC<ITextFieldSubmit> = (props) => {
    return (
     <>
        <div className="underchat">
-            <form className="loginform" action="/Send" method="post" onSubmit={(e) => props.DoSubmit(e, textToSend)}>
-                <input id="textfield" className="textfield" type="text" placeholder="" value={textToSend} onChange={(e)=> {setTextToSend(e.target.value)}} autoComplete="off" name="temp" style={{ paddingRight:'50px' }} required />
+            <form className="loginform" action="/Send" method="post" onSubmit={(e) => {props.DoSubmit(e, textfieldValue);  setTextfieldValue("");}}>
+                <input ref={ props.textfieldRef } id="textfield" className="textfield" type="text" placeholder="" value={textfieldValue} onChange={(e)=> {setTextfieldValue(e.target.value)}} autoComplete="off" name="temp" style={{ paddingRight:'50px' }} required />
                 <input className="sendbutton" type="submit" value="Send"   />
             </form>
         

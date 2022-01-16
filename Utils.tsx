@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import {IMessage_FOR_Server} from './Interfaces';
+import {IMessage_FOR_Server, IUserInfo} from './Interfaces';
 
 export const Base64 = {
     decode: function (hex: string) {
@@ -120,8 +120,11 @@ export const IsUrlAndMP4 = (str:string) => {
         return false;
     }
 }
-export const checkIsRoom = (rooms: any, recipient: string) => {
-    if ((recipient in rooms)) {
+export const checkIsRoom = ( recipient: IUserInfo ) => {
+    if(!recipient){
+         throw new Error(">IUserInfo< object is null or undefined");
+    }
+    if (recipient.isroom) {
        return true;
    } else {
        return false;

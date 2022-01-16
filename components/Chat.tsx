@@ -35,8 +35,7 @@ export const Chat  = () => {
     const [myName, setMyName] = useState(null);
     
    // const [allUsers, setAllUsers] = useState<IUsersContainer>({});
-    const [privateMessages, setPrivateMessages] = useState<IMessagesContainer>({});
-    const [publicMessages, setPublicMessages] = useState<IMessagesContainer>({});
+ 
      
     const [isMyConnectionDone, setIsMyConnectionDone] = useState(false);
     const [startTouch, setStartTouch] = useState(0);
@@ -49,7 +48,7 @@ export const Chat  = () => {
     const [modalMessage, setModalMessage] = useState("Введите пароль");
     const [nameClickText, setNameClickText] = useState("");
     const [columnUsersCSS, setColumnUsersCSS] = useState({});
-  
+ 
 
 
     const usersInit: IUsersContainer = {
@@ -65,7 +64,13 @@ export const Chat  = () => {
 
   
 
-    const [listOfUsers, dispatch] = useReducer(reducer, {});
+    const [listOfUsers, dispatchUsers] = useReducer(reducerUsers, {});
+
+    const [privateMessages, dispatchPrivateMessages] = useReducer(reducerPrivateMessages, {});
+    const [publicMessages, dispatchPublicMessages] = useReducer(reducerPublicMessages, {});
+
+  //  const [privateMessages, setPrivateMessages] = useState<IMessagesContainer>({});
+  //  const [publicMessages, setPublicMessages] = useState<IMessagesContainer>({});
 
     interface IActionReducer{
         type: string;
@@ -75,7 +80,7 @@ export const Chat  = () => {
  
   
 
-    function reducer(listOfUsers :IUsersContainer , action:IActionReducer) {
+    function reducerUsers(listOfUsers :IUsersContainer , action:IActionReducer) {
         switch(action.type){
             case "toAdd": return Object.assign(action.payload, listOfUsers);
 
@@ -86,8 +91,16 @@ export const Chat  = () => {
                           return next;
         }
     }
- 
-     
+    function DeletePrivateTab(tab: string){
+         let copy = {...privateMessages};
+         delete copy[tab];
+         setPrivateMessages(copy);
+    }
+    function DeletePublicTab(tab: string){
+        let copy = {...publicMessages};
+        delete copy[tab];
+        setPublicMessages(copy);
+    }
    
     function onTap(event: any) {
         setStartTouch ( event.touches[0].clientX);
@@ -198,14 +211,22 @@ export const Chat  = () => {
         }] 
     }
     const myNameRef = useRef("");
-
+    const textfieldRef: React.LegacyRef<HTMLInputElement> = useRef(null);
     const DoSubmit = (event: React.FormEvent<HTMLFormElement>, textToSend: string) => {
         event.preventDefault();
         let Message: IMessage_FOR_Server = MessageValidator(textToSend);
         Message.fromwho =  myName;
- 
- 
+
+        if(checkIsRoom(listOfUsers[activeTab])){
+            Message.room = activeTab;
+        }
+        else{
+            Message.forwho = activeTab;   
+        }
         connection.invoke("MessageHandler", Message);
+
+        
+        textfieldRef.current.focus();
      }
  
 
@@ -257,7 +278,7 @@ export const Chat  = () => {
               connection.on("GhostLoginResponse", (userslist: IUsersContainer) => {
                 console.log("");
               
-                dispatch({type: "toAdd", payload: userslist, keyToDelete: null});
+                dispatchUsers({type: "toAdd", payload: userslist, keyToDelete: null});
               });
 
               connection.on("LoginNotifyGhost", (message, connectionid: string, user: IUserInfo ) => {
@@ -283,7 +304,16 @@ export const Chat  = () => {
               
               });
               connection.on("Disconnect", (username: string) => {
-                dispatch({type: "toRemove", payload: null, keyToDelete: username});
+                  if(checkIsRoom(listOfUsers[username])){
+                      DeletePublicTab(username);
+                  }
+                  if(!checkIsRoom(listOfUsers[username])){
+                    DeletePrivateTab(username);
+                  }
+
+                  
+                  dispatchUsers({type: "toRemove", payload: null, keyToDelete: username});
+
             //    let all_users =  allUsers;
             //    delete all_users[username];
            //     setAllUsers({...all_users});
@@ -301,7 +331,7 @@ export const Chat  = () => {
                 (error) => console.log(error)
                 );
         }
-      }, [connection, myName]);
+      }, [connection]);
 
     // if (!isLoading) {
     //     return (
@@ -316,7 +346,7 @@ export const Chat  = () => {
                  <ModalPrivateRoom modalMessage={modalMessage} setModalMessage={setModalMessage} prevTab={prevTab} showModal={showModal} setShowModal={setShowModal} setShow={setShow} show={show}/>
                  <UsersBar listOfUsers={listOfUsers} myNameRef={myNameRef} activeTab={activeTab} setActiveTab={setActiveTab} />
                  <MessagesField publicMessages={publicMessages} privateMessages={privateMessages} myNameRef={myNameRef} notify={notify} setNotify={setNotify} activeTab={activeTab} setActiveTab={setActiveTab}  />
-                 <TextField DoSubmit={DoSubmit}/>
+                 <TextField textfieldRef={textfieldRef} DoSubmit={DoSubmit}/>
             </div>
          );
    // }

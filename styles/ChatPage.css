@@ -257,7 +257,7 @@ label input[type="checkbox"] {
     height:30px;
     float: left;
     padding-right: 10px;
-    z-index:99999;
+
 }
 .userchat-right {
     display: flex;
@@ -421,14 +421,14 @@ p{
 }
 
 .message-name-button-left {
-    border-top-left-radius: 1rem;
-    border-bottom-left-radius: 1rem;
+ 
     padding:0;
    
 }
 .message-name-button-right {
-    border-radius: 1rem;
- 
+    border: transparent;
+    border-color: #0dcaf0;
+  
     float: right;
     padding: 0;
 }

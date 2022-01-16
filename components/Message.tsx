@@ -16,9 +16,9 @@ export const Message: FC<IMessage> = (props) => {
  
     const fromwhoDecode = useMemo(() => Base64.decode(props.message.fromwho), [])
     const usernameDecode = useMemo(() => Base64.decode(props.message.fromwho), [])
-    const isLocal: boolean = useMemo(() => props.message.fromwho === props.myNameRef.current, [])
-
-     
+     const isLocal: boolean = useMemo(() => props.message.fromwho === props.myNameRef.current, [])
+ 
+   
 
     const incomingAudio = useMemo(() => b64toBlob(props.message.audio), []);
 
@@ -52,13 +52,8 @@ export const Message: FC<IMessage> = (props) => {
     return (
       
             <div className="messagechat">
-                <div className={isLocal ? "userchat-right" : "userchat-left" } >
-                    {/* {props.fromwho === props.myName&& (
-                       
-                        <Button variant="info"  className="message-name-button-right"> {props.usersSex[props.cookie] != undefined && <img src={props.usersSex[props.cookie] == "w" ? "./Sex-Female.png" : "./Sex-Male.png"} style={{ height: '20px', width: '20px' }} />}     {cookieDecode} </Button>
-                    )} */}
-                        
-                            <Button variant="info" className="message-name-button-left" onClick={(e) => onClickHandler(e, fromwhoDecode)}>     { isLocal ? props.message.fromwho: props.message.forwho } </Button>
+                <div className="userchat-left">
+                            <Button variant="info" className="message-name-button-left" onClick={(e) => onClickHandler(e, fromwhoDecode)}>     { props.message.fromwho } </Button>
                             <DropdownButton as={ButtonGroup} title=" " id="bg-vertical-dropdown-1">
                                 <Dropdown.Item eventKey="1" onSelect={(e) => onSelectHandler(e, props.message.fromwho)} >Написать в приват</Dropdown.Item>
                                 <Dropdown.Item eventKey="2">Заблокировать</Dropdown.Item>
