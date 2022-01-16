@@ -65,7 +65,7 @@ export const Chat  = () => {
   
 
     const [listOfUsers, dispatch] = useReducer(reducer, {});
-
+    const [rasegaerg, setrasegaerg] = useState({});
 
     const [privateMessages, setPrivateMessages] = useState<IMessagesContainer>({});
     const [publicMessages, setPublicMessages] = useState<IMessagesContainer>({});
@@ -90,11 +90,13 @@ export const Chat  = () => {
         }
     }
     function DeletePrivateTab(tab: string){
+        let asd = listOfUsers;
          let copy = {...privateMessages};
          delete copy[tab];
          setPrivateMessages(copy);
     }
     function DeletePublicTab(tab: string){
+        let asd = listOfUsers;
         let copy = {...publicMessages};
         delete copy[tab];
         setPublicMessages(copy);
@@ -252,7 +254,7 @@ export const Chat  = () => {
                             copy[message.forwho] = [];
                         }
                          copy[message.forwho].push(message);
-                         setPrivateMessages({...copy});
+                         setPrivateMessages(copy);
                     }
                     if(message.fromwho !== myNameRef.current){
                         if( (message.fromwho in copy) !== true){
@@ -260,7 +262,7 @@ export const Chat  = () => {
                         }
                          
                          copy[message.fromwho].push(message);
-                         setPrivateMessages({...copy});
+                         setPrivateMessages(copy);
                     }
                     
               });
@@ -270,12 +272,13 @@ export const Chat  = () => {
                         copy[message.room] = [];
                     }
                     copy[message.room].push(message);
-                    setPublicMessages({...copy});
+                    setPublicMessages(copy);
               });
 
               connection.on("GhostLoginResponse", (userslist: IUsersContainer) => {
                 console.log("");
-              
+                let q = rasegaerg;
+                setrasegaerg(userslist);
                 dispatch({type: "toAdd", payload: userslist, keyToDelete: null});
               });
 
@@ -302,12 +305,14 @@ export const Chat  = () => {
               
               });
               connection.on("Disconnect", (username: string) => {
-                  if(checkIsRoom(listOfUsers[username])){
-                      DeletePublicTab(username);
-                  }
-                  if(!checkIsRoom(listOfUsers[username])){
-                    DeletePrivateTab(username);
-                }
+                let q = rasegaerg;
+                let fsasd = listOfUsers;
+                let reherh = privateMessages;
+                let jfyftyj = publicMessages;
+                DeletePublicTab(username);
+                DeletePrivateTab(username);
+                try{ DeletePublicTab(username);} catch{}
+                try{ DeletePrivateTab(username);} catch{}
                 dispatch({type: "toRemove", payload: null, keyToDelete: username});
 
             //    let all_users =  allUsers;
@@ -327,7 +332,7 @@ export const Chat  = () => {
                 (error) => console.log(error)
                 );
         }
-      }, [connection]);
+      }, [DeletePrivateTab, DeletePublicTab, connection, isMyConnectionDone, listOfUsers, privateMessages, publicMessages, rasegaerg]);
 
     // if (!isLoading) {
     //     return (
