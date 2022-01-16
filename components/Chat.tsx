@@ -66,21 +66,39 @@ export const Chat  = () => {
 
     const [listOfUsers, dispatchUsers] = useReducer(reducerUsers, {});
 
-    const [privateMessages, dispatchPrivateMessages] = useReducer(reducerPrivateMessages, {});
-    const [publicMessages, dispatchPublicMessages] = useReducer(reducerPublicMessages, {});
+    const [privateMessages, dispatchPrivateMessages] = useReducer(reducerMessages, {});
+    const [publicMessages, dispatchPublicMessages] = useReducer(reducerMessages, {});
 
   //  const [privateMessages, setPrivateMessages] = useState<IMessagesContainer>({});
   //  const [publicMessages, setPublicMessages] = useState<IMessagesContainer>({});
 
-    interface IActionReducer{
+    interface IActionUsersReducer{
         type: string;
         payload:  IUsersContainer;
         keyToDelete: string;
     }
- 
-  
+    interface IActionMessagesReducer{
+        type: string;
+        payload:  IMessagesContainer;
+        keyToDelete: string;
+    }
+    function reducerMessages( allMessages :IMessagesContainer , action: IActionMessagesReducer ) {
+        switch(action.type){
+            case "AddPrivateMessage":  return Object.assign(action.payload, allMessages);
+            case "DeletePrivateMessage":  
+                            let nextPrivate = {...allMessages};
+                            delete nextPrivate[action.keyToDelete];
+                            return nextPrivate;
 
-    function reducerUsers(listOfUsers :IUsersContainer , action:IActionReducer) {
+            case "AddPublicMessage": return Object.assign(action.payload, allMessages);
+            case "DeletePublicMessage":  
+                            let nextPublic = {...allMessages};
+                            delete nextPublic[action.keyToDelete];
+                            return nextPublic;
+        }
+    }
+
+    function reducerUsers(listOfUsers :IUsersContainer , action:IActionUsersReducer) {
         switch(action.type){
             case "toAdd": return Object.assign(action.payload, listOfUsers);
 
@@ -91,16 +109,7 @@ export const Chat  = () => {
                           return next;
         }
     }
-    function DeletePrivateTab(tab: string){
-         let copy = {...privateMessages};
-         delete copy[tab];
-         setPrivateMessages(copy);
-    }
-    function DeletePublicTab(tab: string){
-        let copy = {...publicMessages};
-        delete copy[tab];
-        setPublicMessages(copy);
-    }
+ 
    
     function onTap(event: any) {
         setStartTouch ( event.touches[0].clientX);
@@ -231,8 +240,10 @@ export const Chat  = () => {
  
 
     useEffect(() => {   
-        setPublicMessages(publicMessagesInit);
-        setPrivateMessages(privateMessagesInit);
+
+        dispatchPrivateMessages({type: "AddPrivateMessage", payload: privateMessagesInit, keyToDelete: null });
+        dispatchPublicMessages({type: "AddPublicMessage", payload: publicMessagesInit, keyToDelete: null });
+   
     }, []);
     
     useEffect(() => {
@@ -254,7 +265,8 @@ export const Chat  = () => {
                             copy[message.forwho] = [];
                         }
                          copy[message.forwho].push(message);
-                         setPrivateMessages({...copy});
+                         dispatchPrivateMessages({type: "AddPrivateMessage", payload: copy, keyToDelete: null });
+                        
                     }
                     if(message.fromwho !== myNameRef.current){
                         if( (message.fromwho in copy) !== true){
@@ -262,7 +274,8 @@ export const Chat  = () => {
                         }
                          
                          copy[message.fromwho].push(message);
-                         setPrivateMessages({...copy});
+                         dispatchPrivateMessages({type: "AddPrivateMessage", payload: copy, keyToDelete: null });
+                        
                     }
                     
               });
@@ -272,7 +285,8 @@ export const Chat  = () => {
                         copy[message.room] = [];
                     }
                     copy[message.room].push(message);
-                    setPublicMessages({...copy});
+                    dispatchPublicMessages({type: "AddPublicMessage", payload: copy, keyToDelete: null });
+                
               });
 
               connection.on("GhostLoginResponse", (userslist: IUsersContainer) => {
@@ -305,10 +319,12 @@ export const Chat  = () => {
               });
               connection.on("Disconnect", (username: string) => {
                   if(checkIsRoom(listOfUsers[username])){
-                      DeletePublicTab(username);
+                    dispatchPublicMessages({type: "DeletePublicMessage", payload: null, keyToDelete: username });
+ 
                   }
                   if(!checkIsRoom(listOfUsers[username])){
-                    DeletePrivateTab(username);
+                    dispatchPublicMessages({type: "DeletePrivateMessage", payload: null, keyToDelete: username });
+ 
                   }
 
                   
