@@ -7,8 +7,8 @@ import Cookies from 'universal-cookie';
 //import ReactGiphySearchbox from 'react-giphy-searchbox';
 import { DateTime } from '../components/DateTime';
 
-export const Sidebar = (props) => {
-    const setCookie = (name, value) => {
+export const Sidebar = (props:any) => {
+    const setCookie = (name:any, value:any) => {
         const cookies = new Cookies();
         const current = new Date();
         const nextYear = new Date();
@@ -40,7 +40,7 @@ export const Sidebar = (props) => {
         setCookie("NotifWCookie", !props.notifWoman);
     }
 
-    const selectGif = (item)=> {
+    const selectGif = (item:any)=> {
         console.log(item)
 
         let url = item.images.original.url;
@@ -50,7 +50,7 @@ export const Sidebar = (props) => {
         
         setIsShowSlider(false);
     }
-    const selectPornGif = (e) => {
+    const selectPornGif = (e:any) => {
 
         if (props.activeTab === "Home") {
             return;
@@ -89,7 +89,7 @@ export const Sidebar = (props) => {
 
     const scrollEvent = () => {
         console.log("scroll");
-        let elem = null;
+        let elem:any = null;
        
         if (elem.scrollTop >= (elem.scrollHeight - elem.offsetHeight)) {
             elem.scrollTop = elem.scrollHeight;
@@ -98,12 +98,12 @@ export const Sidebar = (props) => {
         }
     }
      
-    const onSelectTab = (e) => {
+    const onSelectTab = (e:any) => {
         setTabName(e);
     }
 
 
-    function getRandomInt(max) {
+    function getRandomInt(max:any) {
         return "https://s3-us-west-1.amazonaws.com/porngifs/img/" + Math.floor(Math.random() * max);
     }
      
@@ -165,29 +165,29 @@ export const Sidebar = (props) => {
 };
  
 
-const Li = (props) => {
+const Li = (props:any) => {
     return (
         <li key={props.keyValue}><img onClick={(e) => props.selectPornGif(e)} style={{ height: 'auto', width: '285px' }} src={props.srcValue} /></li>
         );
 }
 
-const CreateRoom = (props) => {
+const CreateRoom = (props:any) => {
     const [valueName, setValueName] = useState("");
     const [valuePass, setValuePass] = useState("");
 
-    const handleInputName = (event) => {
+    const handleInputName = (event:any) => {
         let val = event.target.value;
         setValueName(val);
          
     }
-    const handleInputPass = (event) => {
+    const handleInputPass = (event:any) => {
         let val = event.target.value;
         setValuePass(val);
       
     }
      
 
-    const handleSubmit = (event) => {
+    const handleSubmit = (event:any) => {
         event.preventDefault();
         var cookieName = getCookie("Session");
 

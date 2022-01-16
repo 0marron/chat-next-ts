@@ -1,7 +1,16 @@
-import React, {  } from 'react';
+import React, { FC } from 'react';
 import { Toast } from 'react-bootstrap';
-
-export const  NotifyBadge = (props) =>{
+interface INotifyBadge{
+    notify: {
+        user: string;
+        showing: boolean;
+    },
+    setNotify: React.Dispatch<React.SetStateAction<{
+        user: string;
+        showing: boolean;
+    }>>
+}
+export const  NotifyBadge: FC<INotifyBadge> = (props) =>{
     return(
         <div
         aria-live="polite"

@@ -9,14 +9,19 @@ import { Message } from './Message';
 import { Sidebar } from './Sidebar';
  
  
-import {IMessage_FROM_Server} from '../Interfaces';
+import {IMessagesContainer, IMessage_FROM_Server } from '../Interfaces';
  
-interface IUsersBar{
+interface IMessagesField{
     setActiveTab: React.Dispatch<React.SetStateAction<string>>;
     activeTab: string;
+    publicMessages: IMessagesContainer;
+    privateMessages: IMessagesContainer;
+    notify: {user: string;showing: boolean;},
+    setNotify: React.Dispatch<React.SetStateAction<{user: string;showing: boolean;}>>
+    myNameRef: React.MutableRefObject<string>
 }
 
-export const MessagesField:FC<IUsersBar> = (props) => {
+export const MessagesField:FC<IMessagesField> = (props) => {
  
     const [columnMessagessCSS, setColMessagessCSS] = useState({});
     const [isOnImage, setIsOnImage] = useState("");
@@ -109,13 +114,13 @@ export const MessagesField:FC<IUsersBar> = (props) => {
         <ul id="messages">
             <Tabs defaultActiveKey="Home" unmountOnExit={false} activeKey={props.activeTab} transition={false} id="noanim-tab-example" className="chatTabs"  >
                 {
-                     Object.keys(props.publicMessages).map(function (name, i) {
+                     Object.keys(props.publicMessages).map(function (name: string, index: number) {
                          return (
-                             <Tab eventKey={name} title={name} key={i} className="message-field" disabled>
+                             <Tab eventKey={name} title={name} key={index} className="message-field" disabled>
                                  {
                                      props.publicMessages[name].map((message: IMessage_FROM_Server, message_key: number) => {
                                          return (
-                                             <Message key={message_key} message={message}  setNameClickText={setNameClickText} nameClickText={nameClickText} isOnImage={isOnImage} isOnScroll={isOnScroll} setIsOnImage={setIsOnImage} setIsOnScroll={setIsOnScroll} {...props} />
+                                             <Message key={message_key} message={message}  {...props} />
                                          );
                                      })
                                  }
@@ -125,14 +130,13 @@ export const MessagesField:FC<IUsersBar> = (props) => {
                 }
 
                 {
-                     Object.keys(props.privateMessages).map(function (name, i) {
+                     Object.keys(props.privateMessages).map(function (name: string, index: number) {
                          return (
-                             <Tab eventKey={name} title={name} key={i} className="message-field" disabled>
+                             <Tab eventKey={name} title={name} key={index} className="message-field" disabled>
                                  {
                                      props.privateMessages[name].map((message: IMessage_FROM_Server, message_key) => {
                                          return (
-                                             <Message key={message_key} message={message}  setNameClickText={setNameClickText} nameClickText={nameClickText} isOnImage={isOnImage} isOnScroll={isOnScroll} setIsOnImage={setIsOnImage} setIsOnScroll={setIsOnScroll} {...props} />
-                                         );
+                                            <Message key={message_key} message={message} {...props} />                                         );
                                      })
                                  }
                              </Tab>
@@ -141,7 +145,7 @@ export const MessagesField:FC<IUsersBar> = (props) => {
                 }
             </Tabs>
         </ul>
-         <Sidebar sendRequest={SendRequest } setIsOnImage={setIsOnImage} setIsOnScroll={setIsOnScroll} isOnImage={isOnImage} isOnScroll={isOnScroll} {...props} />
+         <Sidebar setIsOnImage={setIsOnImage} setIsOnScroll={setIsOnScroll} isOnImage={isOnImage} isOnScroll={isOnScroll} {...props} />
     </div>
        );
 }

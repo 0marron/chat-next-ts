@@ -65,7 +65,7 @@ export const Chat  = () => {
 
   
 
-    const [listOfUsers, dispatch] = useReducer(reducer, usersInit);
+    const [listOfUsers, dispatch] = useReducer(reducer, {});
 
     interface IActionReducer{
         type: string;
@@ -297,7 +297,9 @@ export const Chat  = () => {
             
             });
             }) 
-            .catch((error) => console.log(error));
+            .catch(
+                (error) => console.log(error)
+                );
         }
       }, [connection, myName]);
 
@@ -313,7 +315,7 @@ export const Chat  = () => {
             <div className="row" onTouchStart={(e) => onTap(e)} onTouchMove={(e) =>moveTouch(e)} >
                  <ModalPrivateRoom modalMessage={modalMessage} setModalMessage={setModalMessage} prevTab={prevTab} showModal={showModal} setShowModal={setShowModal} setShow={setShow} show={show}/>
                  <UsersBar listOfUsers={listOfUsers} myNameRef={myNameRef} activeTab={activeTab} setActiveTab={setActiveTab} />
-                 <MessagesField publicMessages={publicMessages} privateMessages={privateMessages} myNameRef={myNameRef} notify={notify} setNotify={setNotify} connection={connection} isOnSounds={isOnSounds} setIsOnSounds={setIsOnSounds}   usersArr={usersArr} secretRoomUsers={secretRoomUsers} roomsDic={roomsDic}   notifWoman={notifWoman} notifMan={notifMan} setNotifWoman={setNotifWoman} setNotifMan={setNotifMan} enterUsers={enterUsers}    activeTab={activeTab} setActiveTab={setActiveTab} usersSex={usersSex} usersBadge={usersBadge} setUserBadge={setUserBadge} messageText={messageText} setMessageText={setMessageText} />
+                 <MessagesField publicMessages={publicMessages} privateMessages={privateMessages} myNameRef={myNameRef} notify={notify} setNotify={setNotify} activeTab={activeTab} setActiveTab={setActiveTab}  />
                  <TextField DoSubmit={DoSubmit}/>
             </div>
          );
