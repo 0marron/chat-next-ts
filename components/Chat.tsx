@@ -65,8 +65,6 @@ export const Chat  = () => {
   
 
     const [listOfUsers, dispatch] = useReducer(reducer, {});
-    const [rasegaerg, setrasegaerg] = useState({});
-
     const [privateMessages, setPrivateMessages] = useState<IMessagesContainer>({});
     const [publicMessages, setPublicMessages] = useState<IMessagesContainer>({});
 
@@ -89,18 +87,7 @@ export const Chat  = () => {
                           return next;
         }
     }
-    function DeletePrivateTab(tab: string){
-        let asd = listOfUsers;
-         let copy = {...privateMessages};
-         delete copy[tab];
-         setPrivateMessages(copy);
-    }
-    function DeletePublicTab(tab: string){
-        let asd = listOfUsers;
-        let copy = {...publicMessages};
-        delete copy[tab];
-        setPublicMessages(copy);
-    }
+ 
    
     function onTap(event: any) {
         setStartTouch ( event.touches[0].clientX);
@@ -167,6 +154,32 @@ export const Chat  = () => {
             videofile: null,
             imagefile: null
         }],
+        "testuser2":[{
+            textmessage: "message test message test message test message test",
+            imageurl: "",
+            fromwho:"sehserh",
+            forwho: "",
+            audio: "",
+            room: "",
+            imageastext: "",
+            youtubeastext: "",
+            videoastext: "",
+            videofile: null,
+            imagefile: null
+        }],
+        "testuser3":[{
+            textmessage: "message test message test message test message test",
+            imageurl: "",
+            fromwho:"sehserh",
+            forwho: "",
+            audio: "",
+            room: "",
+            imageastext: "",
+            youtubeastext: "",
+            videoastext: "",
+            videofile: null,
+            imagefile: null
+        }]
     }
 
     const publicMessagesInit: IMessagesContainer = {
@@ -231,8 +244,8 @@ export const Chat  = () => {
  
 
     useEffect(() => {   
-        setPublicMessages(publicMessagesInit);
-        setPrivateMessages(privateMessagesInit);
+      //  setPublicMessages(publicMessagesInit);
+      //  setPrivateMessages(privateMessagesInit);
     }, []);
     
     useEffect(() => {
@@ -242,43 +255,38 @@ export const Chat  = () => {
     
     useEffect(() => {
         if (connection) {
-           
-          
+            console.log("connection");
               connection.start().then(() => {
               connection.on("PrivateResponse", (message: IMessage_FROM_Server , fromwho) => {
-                    const copy = privateMessages;
-               
-                  
-                    if(message.fromwho === myNameRef.current){
-                        if( (message.forwho in copy) !== true){
-                            copy[message.forwho] = [];
-                        }
-                         copy[message.forwho].push(message);
-                         setPrivateMessages(copy);
+                     
+                const refPrivateMessages = privateMessages;
+                if(message.fromwho === myNameRef.current){
+                    if( (message.forwho in refPrivateMessages) !== true){
+                        refPrivateMessages[message.forwho] = [];
                     }
-                    if(message.fromwho !== myNameRef.current){
-                        if( (message.fromwho in copy) !== true){
-                            copy[message.fromwho] = [];
-                        }
-                         
-                         copy[message.fromwho].push(message);
-                         setPrivateMessages(copy);
+                     refPrivateMessages[message.forwho].push(message);
+                     setPrivateMessages({...refPrivateMessages});
+                }
+                if(message.fromwho !== myNameRef.current){
+                    if( (message.fromwho in refPrivateMessages) !== true){
+                        refPrivateMessages[message.fromwho] = [];
                     }
-                    
+                     refPrivateMessages[message.fromwho].push(message);
+                     setPrivateMessages({...refPrivateMessages});
+                }
               });
+
               connection.on("PublicResponse", (message , fromwho) => {
-                    const copy = publicMessages;
-                    if( (message.room in copy) !== true){
-                        copy[message.room] = [];
+                    const refPublicMessages = publicMessages;
+                    if( (message.room in refPublicMessages) !== true){
+                        refPublicMessages[message.room] = [];
                     }
-                    copy[message.room].push(message);
-                    setPublicMessages(copy);
+                    refPublicMessages[message.room].push(message);
+                    setPublicMessages({...refPublicMessages});
               });
 
               connection.on("GhostLoginResponse", (userslist: IUsersContainer) => {
-                console.log("");
-                let q = rasegaerg;
-                setrasegaerg(userslist);
+               
                 dispatch({type: "toAdd", payload: userslist, keyToDelete: null});
               });
 
@@ -296,7 +304,7 @@ export const Chat  = () => {
                         myNameRef.current = connection.connectionId;
                         setMyName(connection.connectionId);
                         connection.invoke("GettingUsersListOnce");
-                        console.log("");
+                       
                    }
           
                 //  setNotify({user: message, showing: true});
@@ -305,14 +313,18 @@ export const Chat  = () => {
               
               });
               connection.on("Disconnect", (username: string) => {
-                let q = rasegaerg;
-                let fsasd = listOfUsers;
-                let reherh = privateMessages;
-                let jfyftyj = publicMessages;
-                DeletePublicTab(username);
-                DeletePrivateTab(username);
-                try{ DeletePublicTab(username);} catch{}
-                try{ DeletePrivateTab(username);} catch{}
+               
+            //    let copyPrivateMessages = {...privateMessages};
+                 let copyPrivateMessages = Object.assign({}, privateMessages);
+                 delete copyPrivateMessages[username];
+                 setPrivateMessages(copyPrivateMessages);
+
+                 let copyPublicMessages = {...publicMessages};
+                 delete copyPublicMessages[username];
+                 setPublicMessages(copyPublicMessages);
+
+
+           
                 dispatch({type: "toRemove", payload: null, keyToDelete: username});
 
             //    let all_users =  allUsers;
@@ -325,14 +337,17 @@ export const Chat  = () => {
               //  setNotify({user: message, showing: true});
 
                 setIsMyConnectionDone(true);
-            
+               
             });
             }) 
             .catch(
-                (error) => console.log(error)
+                (error) => console.log(`Error!   ${error}`)
                 );
+                setPrivateMessages(privateMessagesInit);
+                
+
         }
-      }, [DeletePrivateTab, DeletePublicTab, connection, isMyConnectionDone, listOfUsers, privateMessages, publicMessages, rasegaerg]);
+      }, [connection]);
 
     // if (!isLoading) {
     //     return (
