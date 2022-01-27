@@ -32,7 +32,6 @@ export const ModalPrivateRoom = (props: any) => {
                    
                 }
                 return response.json();
-                 
             }).then(function (data) {
                 props.setModalMessage(data);
             })

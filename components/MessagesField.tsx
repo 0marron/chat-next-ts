@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo, FC } from 'react';
-import { Tab, Tabs } from 'react-bootstrap';
+import { Tab, Tabs,Spinner } from 'react-bootstrap';
 import{ IsUrlAndImage, IsUrlAndMP4,IsUrlAndYoutube, getCookie, Base64, checkIsRoom} from '../Utils' ;
 import 'react-image-lightbox/style.css';
 import { NotifyBadge } from '../components/NotifyBadge';
@@ -21,7 +21,10 @@ interface IMessagesField{
         alert: string,
         showing: boolean
     };
+    
     myNameRef: React.MutableRefObject<string>;
+    audioToSend: React.MutableRefObject<string | null>;
+
     columntextToEndRef: React.LegacyRef<HTMLDivElement>;
     isOnScroll: boolean;
     setNotify: React.Dispatch<React.SetStateAction<{alert: string, showing: boolean }>>;
@@ -38,6 +41,7 @@ interface IMessagesField{
     connectionId: string | null;
     listOfUsers: IUsersContainer;
     DoSendPhoto(url: string): void;
+    DoSendAudio(url: string): void;
 }
 
 export const MessagesField:FC<IMessagesField> = (props) => {
@@ -52,7 +56,6 @@ export const MessagesField:FC<IMessagesField> = (props) => {
  
 
     useEffect(() => {
-       
         if (props.isOnScroll) {
             var cleft = document.getElementById("cright");
             cleft.scrollTop = cleft.scrollHeight;
@@ -121,6 +124,7 @@ export const MessagesField:FC<IMessagesField> = (props) => {
  
     return (
         <div className="columntext" id="cright" ref={props.columntextToEndRef}>
+         
         <NotifyBadge {...props}/> {/*Ghost user entered notif*/}
         <ul className="messages-field">
             <Tabs defaultActiveKey="Home" unmountOnExit={false} activeKey={props.activeTab} transition={false} id="noanim-tab-example" className="chatTabs"  >

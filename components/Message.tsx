@@ -18,11 +18,7 @@ export const Message: FC<IMessage> = (props) => {
  
     const fromwhoDecode = useMemo(() => Base64.decode(props.message.fromwho), [])
     const usernameDecode = useMemo(() => Base64.decode(props.message.fromwho), [])
-     const isLocal: boolean = useMemo(() => props.message.fromwho === props.myNameRef.current, [])
- 
-   
-
-     const incomingAudio = useMemo(() => b64toBlob(props.message.audio), []);
+    const incomingAudio = useMemo(() => b64toBlob(props.message.audio), []);
 
      function b64toBlob(dataURI: string) {
         try {
@@ -97,26 +93,16 @@ export const Message: FC<IMessage> = (props) => {
                             <Lightbox
                                 mainSrc={'./uploadImages/' + props.message.imageastext}
                                 onCloseRequest={() => setLightBoxState({ photoIndex: 0, isOpen: false })}
-                            />
-                        )
-                        }
-
-
-
-                        {props.message.youtubeastext && (
-                        <iframe className="youtube" frameBorder={0} allowFullScreen={true} allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"  src={props.message.youtubeastext} />
-                        )}
-                        { /*
+                            />  )}
+                       
                          
-                             {props.videoastext && (
-                            <video src={props.videoastext} autoplay muted playsinline preload="metadata" controls="controls" loop style={{ height: "auto", width: "300px" }}  >  </video>
+                        {props.message.youtubeastext && (
+                             <iframe className="youtube" frameBorder={0} allowFullScreen={true} allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"  src={props.message.youtubeastext} />
                         )}
-                         */}
-                     
-
+                    
                         {
-                           !isNullOrEmpty(props.message.audio) && (
-                                <audio controls src={props.message.audio} />
+                            incomingAudio !== null && !isNullOrEmpty(incomingAudio) && (
+                                <audio controls src={incomingAudio} />
                             )
                         }
                   </div>

@@ -1,9 +1,9 @@
 import React, { FC, useEffect, useRef, useState, Dispatch, SetStateAction } from 'react';
-import { Modal, Form, Button, Container, Row, Col, Tab, Tabs } from 'react-bootstrap';
+import { Modal, Form, Button, Spinner, Row, Col, Tab, Tabs } from 'react-bootstrap';
 import Image from 'next/image';
 import { getCookie, checkIsRoom } from '../Utils';
 import $ from 'jquery';
-import {IUsersContainer} from '../Interfaces';
+import {IUsersContainer, IMessage_FOR_Server} from '../Interfaces';
 //import ReactGiphySearchbox from 'react-giphy-searchbox';
 import { DateTime } from './DateTime';
 interface IRightSidebarProps{
@@ -18,17 +18,21 @@ interface IRightSidebarProps{
     setIsOnScroll: Dispatch<SetStateAction<boolean>>;
     setNotifMan: Dispatch<SetStateAction<boolean>>;
     setNotifWoman: Dispatch<SetStateAction<boolean>>;
+
     myNameRef: React.MutableRefObject<string>;
+    audioToSend: React.MutableRefObject<string | null>;
+
     connectionId: string;
     listOfUsers: IUsersContainer;
     DoSendPhoto(url: string): void;
+    DoSendAudio(url: string): void;
+    setNotify: React.Dispatch<React.SetStateAction<{alert: string, showing: boolean }>>;
 }
 
 
 export const RightSidebar: FC<IRightSidebarProps> = (props) => {
  
-    //const [spinner, setSpinner] = useState(<Spinner />);
- 
+    const [isSpinnerTurnOn, setSpinnerTurnOn] = useState(false);
 
     
     const imageHandler = () => {
@@ -67,9 +71,6 @@ export const RightSidebar: FC<IRightSidebarProps> = (props) => {
    
     const [tabName, setTabName] = useState("home");
     const [isPermission, setIsPermission] = useState(true);
-  
-
- 
      
     const onSelectTab = (e:any) => {
         setTabName(e);
@@ -79,9 +80,6 @@ export const RightSidebar: FC<IRightSidebarProps> = (props) => {
         setIsPermission(true);
     }
  
-
-    const [isSpinnerTurnOn, setSpinnerTurnOn] = useState(false);
-
     const [stream, setStream] = useState({
         access: false,
         recorder: null,
@@ -97,18 +95,12 @@ export const RightSidebar: FC<IRightSidebarProps> = (props) => {
     const onClickRecord = () => {
         if (!isSpinnerTurnOn) {
             stream.recorder.start()
-
             setSpinnerTurnOn(true);
-          //  setSpinner(<Spinner as="span" animation="grow" size="sm" role="status" aria-hidden="true" />);
         }
         else if (isSpinnerTurnOn) {
             stream.recorder.stop()
-
             setSpinnerTurnOn(false);
-           // setSpinner(<Spinner />);
         }
-
-
     }
  
     function getAccess(props: IRightSidebarProps) {
@@ -164,13 +156,13 @@ export const RightSidebar: FC<IRightSidebarProps> = (props) => {
                 });
             })
             .catch((error) => {
+                props.setNotify({alert: error.message, showing: true});
                 console.log(error);
                 setStream({ ...stream, error });
             });
     }
     /////////////
     const onSendPhoto = () => {
-      
         let files = (document.getElementById('files') as HTMLFormElement).files;
        
         let formData = new FormData();
@@ -185,7 +177,7 @@ export const RightSidebar: FC<IRightSidebarProps> = (props) => {
             formData.append("isroom", "false");
         }
 
-        formData.append("connectionId", props.connectionId);
+        formData.append("connectionid", props.connectionId);
 
         $.ajax(
             {
@@ -211,31 +203,17 @@ export const RightSidebar: FC<IRightSidebarProps> = (props) => {
         );
 
     }
-     
-    function PostAudio(blob: Blob, props: IRightSidebarProps) {
-        
-        let reader = new FileReader();
-        reader.readAsDataURL(blob);
-        reader.onloadend = function () {
-            let base64toBlob = reader.result;
-            let formData = new FormData();
-            formData.append('audiofile', String(base64toBlob));
-            formData.append('fromwho', props.myNameRef.current);
-            formData.append('formwho', props.activeTab);
-            formData.append('isroom', "false");
-             
-            let xhr = new XMLHttpRequest();
-            xhr.open('POST', '/ChatPage/UAudio', true);
-            xhr.onload = function (e) {
-                if (this.status == 200) {
-                    
-                     //  let downloadUrl = URL.createObjectURL(b64toBlob(this.response));
  
-                } else {
-                    alert('Unable to download excel.')
-                }
-            };
-            xhr.send(formData);
+
+
+    function PostAudio(blob: Blob, props: IRightSidebarProps) {
+
+            let reader = new FileReader();
+            reader.readAsDataURL(blob);
+            reader.onloadend = () => {
+            let base64toBlob = reader.result;
+          
+            props.DoSendAudio(String(base64toBlob));
         }
     }
     function b64toBlob(dataURI:string) {
@@ -261,23 +239,28 @@ export const RightSidebar: FC<IRightSidebarProps> = (props) => {
                   <Tab eventKey="home" title="Settings" style={{ height: '100%',   backgroundColor: '#a8a087' }}>
                   
                     <div className="columnsettings" id="csettings">
-                    
-                    <div className="imageInput">
-                        <Button style={{ width: 100 + 'px', height: 100 + 'px', float: "left" }}>  
-                        <label id="labelforimage" style={{ margin:"auto" }} htmlFor="files" >
-                            { <Image src="/photo.png" width={50} height={50} alt=""/> }
-                            </label>
-                        </Button>
-                        <input id="files" hidden type="file" style={{ width: 100 + 'px', float: "left" }} onInput={onSendPhoto} accept="image/*" />
-                    </div>
+                        <div className="imageInput">
+                            <Button style={{ width: 100 + 'px', height: 100 + 'px', float: "left", padding: 0}}>  
+                            <label id="labelforimage" htmlFor="files" >
+                            { 
+                                <div style={{margin: 'auto', height:'50px', width:'50px', marginTop:'25px'}}>
+                                    <Image src="/photo.png" width={50} height={50} alt=""/>
+                                </div>
+                            }
+                                </label>
+                            </Button>
+                            <input id="files" hidden type="file" style={{ width: 100 + 'px', float: "left" }} onInput={onSendPhoto} accept="image/*" />
+                        </div>
 
                         {stream.access ? (
                         <div>
-                            <Button className="recordButton" variant="primary" onClick={onClickRecord}>  REC... </Button>
+                            <Button className="recordButton" variant="success" onClick={onClickRecord}> 
+                              {isSpinnerTurnOn && (<><Spinner as="span" animation="grow" size="sm" role="status" aria-hidden="true" /><p>Нажмите, чтобы закончить запись</p></>)}  
+                              {!isSpinnerTurnOn && (<>Нажмите для записи</>)}  
+                            </Button>
                         </div>
-
                         ):(
-                            <Button className="recordButton" variant="primary" onClick={()=>getAccess(props)}> Голосовое сообщение </Button>
+                            <Button className="recordButton" variant="primary" onClick={()=>getAccess(props)}> Разрешить доступ к микрофону </Button>
                         )}
                     
                     </div>

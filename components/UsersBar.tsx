@@ -33,10 +33,8 @@ export const UsersBar: FC< IUsersBar & IlistOfUsers & ImyNameRef > = (props) => 
             var cleft = document.getElementById("cright");
             cleft.scrollTop = cleft.scrollHeight;
         }
- 
     }, []);
     useEffect(() => {
-       
         if (isOnScroll) {
             var cleft = document.getElementById("cright");
             cleft.scrollTop = cleft.scrollHeight;

@@ -152,6 +152,10 @@ export const useInterval = (callback: any, delay: number) => {
 }
  
 export const MessageValidator = (value: string)=>  {
+    if(isNullOrEmpty(value)){
+       return null;
+    }
+
     let Message: IMessage_FOR_Server = {
         textmessage: null,
         imageurl: null,
@@ -176,6 +180,10 @@ export const MessageValidator = (value: string)=>  {
     }
     if(IsUrlAndYoutube(value)) {
         Message.youtubeastext = value;
+        return Message;
+    }
+    if(value.includes("audio/x-mpeg-3")){//TODO
+        Message.audio = value;
         return Message;
     }
     if(!isNullOrEmpty(value)){
