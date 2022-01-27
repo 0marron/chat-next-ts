@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef, FC } from 'react';
- 
+import Image from 'next/image';
  
 import { HubConnection } from "@microsoft/signalr";
 
@@ -50,8 +50,8 @@ export const TextField:FC<ITextFieldSubmit> = (props) => {
                 <input className="sendbutton" type="submit" value="Send"   />
             </form>
         
-               <label id="emojipicker" onClick={emojiClickHandler} >
-                  <img src="./smile.png" style={{ width: 35 + 'px', height: 35 + 'px', marginLeft: '7.5px', marginTop: '7.5px', marginBottom: '7.5px', marginRight: '7.5px', display: 'block' }} />
+               <label className="emojipicker" onClick={emojiClickHandler} >
+                  <Image src="/smile.png" width={35} height={35}  alt="" className="image-emoji-picker" />
                </label>
        </div>
        {/* { isShowEmoji && (<Picker native={true} onEmojiClick={onEmojiClick} disableAutoFocus={true} preload={false} skinTone={SKIN_TONE_NEUTRAL} disableSearchBar={true} preload={false} pickerStyle={{ right: '0px', bottom: '50px', position: 'absolute' }} />)}*/}

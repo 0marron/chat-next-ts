@@ -4,6 +4,8 @@ import React, { useEffect, useState, useMemo, FC } from 'react';
 import { Button, Alert, DropdownButton, Dropdown, ButtonGroup } from 'react-bootstrap';
 import { Base64, getCookie, isNullOrEmpty } from '../Utils'
 import { IMessage_FROM_Server } from '../Interfaces';
+
+import Image from 'next/image';
 interface IMessage{
     message: IMessage_FROM_Server;
     myNameRef: React.MutableRefObject<string>;
@@ -20,9 +22,9 @@ export const Message: FC<IMessage> = (props) => {
  
    
 
-    const incomingAudio = useMemo(() => b64toBlob(props.message.audio), []);
+     const incomingAudio = useMemo(() => b64toBlob(props.message.audio), []);
 
-    function b64toBlob(dataURI: string) {
+     function b64toBlob(dataURI: string) {
         try {
             var byteString = atob(dataURI.split(',')[1]);
             var ab = new ArrayBuffer(byteString.length);
@@ -37,68 +39,61 @@ export const Message: FC<IMessage> = (props) => {
             return null;
         }
 
-    }
+      }
 
  
 
       function onSelectHandler(e: React.SyntheticEvent<HTMLElement, Event>, value: string) {
           props.setActiveTab(value);
       }
-    function onClickHandler(e: React.MouseEvent<HTMLButtonElement, MouseEvent>, name: string) {
+      function onClickHandler(e: React.MouseEvent<HTMLButtonElement, MouseEvent>, name: string) {
        
-    }
+      }
 
 
     return (
       
+<>
+ 
+            <div className="userchat-left">
+                <Button   className="message-name-button-left" onClick={(e) => onClickHandler(e, fromwhoDecode)}>     { props.message.fromwho } </Button>
+                <DropdownButton as={ButtonGroup} title=" " id="bg-vertical-dropdown">
+                    <Dropdown.Item eventKey="1" onSelect={(e) => onSelectHandler(e, props.message.fromwho)} >Написать в приват</Dropdown.Item>
+                    <Dropdown.Item eventKey="2">Заблокировать</Dropdown.Item>
+                </DropdownButton>
+            </div>      
             <div className="messagechat">
-                <div className="userchat-left">
-                            <Button variant="info" className="message-name-button-left" onClick={(e) => onClickHandler(e, fromwhoDecode)}>     { props.message.fromwho } </Button>
-                            <DropdownButton as={ButtonGroup} title=" " id="bg-vertical-dropdown-1">
-                                <Dropdown.Item eventKey="1" onSelect={(e) => onSelectHandler(e, props.message.fromwho)} >Написать в приват</Dropdown.Item>
-                                <Dropdown.Item eventKey="2">Заблокировать</Dropdown.Item>
-                            </DropdownButton>
-                </div>
-
-            
-                <>
                         {!props.message.imageastext && !props.message.youtubeastext && (props.message.textmessage)}
                         {props.message.imageastext && true && (
                             <a className="imagechat" onClick={() => setLightBoxState({ photoIndex: 0, isOpen: true })}>
-                        <img src={'./uploadImages/' + props.message.imageastext} style={{ height: 'auto', width: '200px', borderRadius: '1rem' }} />
+                        <Image src={'/uploadImages/' + props.message.imageastext} height={"auto"} width={200} alt="" />
                             </a>
                         )}
                         {props.message.imageastext &&false && (
                         <a className="imagechat" onClick={() => setLightBoxState({ photoIndex: 0, isOpen: true })}>
-                        <img src={props.message.textmessage} style={{ height: 'auto', width: '200px', borderRadius:'1rem' }} />
+                        <Image src={props.message.textmessage} height={"auto"} width={200} alt="" />
                             </a>
                         )}
 
 
 
 
-                        {props.message.imageurl && true && (
+                        {props.message.imageurl && (
                             <a className="imagechat" onClick={() => setLightBoxState({ photoIndex: 0, isOpen: true })}>
-                                <img src={'./hidescreener.png'} style={{ height: '30px' }} />
+                                <Image src="https://localhost:7061/hidescreener.png" height={50} width={100} alt="" />
                             </a>
                         )}
 
-                        {props.message.imageastext && true && (
-                            <a className="imagechat" onClick={() => setLightBoxState({ photoIndex: 0, isOpen: true })}>
-                                <img src={'./hidescreener.png'} style={{ height: '30px' }} />
-                            </a>
-                        )}
+                  
 
-                        {props.message.imageastext && lightBoxState.isOpen && (
+                        {props.message.imageurl && lightBoxState.isOpen && (
                             <Lightbox
-                                mainSrc={props.message.textmessage}
+                                mainSrc={props.message.imageurl}
                                 onCloseRequest={() => setLightBoxState({ photoIndex: 0, isOpen: false })}
                             />
                         )}
                        
-
-
-                        {!props.message.imageastext && lightBoxState.isOpen && (
+                        {!props.message.imageurl && lightBoxState.isOpen && (
                             <Lightbox
                                 mainSrc={'./uploadImages/' + props.message.imageastext}
                                 onCloseRequest={() => setLightBoxState({ photoIndex: 0, isOpen: false })}
@@ -124,10 +119,8 @@ export const Message: FC<IMessage> = (props) => {
                                 <audio controls src={props.message.audio} />
                             )
                         }
-                </>
-            </div>
+                  </div>
+            </>
     );
-
-
 }
  

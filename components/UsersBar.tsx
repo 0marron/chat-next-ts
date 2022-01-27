@@ -33,6 +33,7 @@ export const UsersBar: FC< IUsersBar & IlistOfUsers & ImyNameRef > = (props) => 
             var cleft = document.getElementById("cright");
             cleft.scrollTop = cleft.scrollHeight;
         }
+ 
     }, []);
     useEffect(() => {
        
@@ -93,33 +94,37 @@ export const UsersBar: FC< IUsersBar & IlistOfUsers & ImyNameRef > = (props) => 
     interface ICSSUsers{
         [index: string]: React.CSSProperties
     }
+    
     const userCSS: ICSSUsers = {
         "w":{backgroundColor: "rgb(255, 182, 193)"},
         "m":{backgroundColor: "rgb(172, 194, 188)"},
-        "r":{backgroundColor: "green"}
+        "r":{backgroundColor: "rgb(167, 140, 140)"}
     }
-  
+    const variantCSS:{[index: string]:string} = {
+        "w":"outline-primary",
+        "m":"outline-primary",
+        "r": "outline-primary"
+    }
 
     return (
       
-           <div className="columnusers" id="cleft" style={columnUsersCSS } >
+           <div className="columnusers" id="cleft"  style={columnUsersCSS} >
                <ul id="users">
                    {
                        Object.keys(props.listOfUsers).map((name: string,i)=>{
                         return (
-                            <li key={name} id={name}>
+                            <li key={name} id={name} className="liuser">
                                 <ToggleButton
-                                   // disabled={props.myName == name}
                                     disabled={props.myNameRef.current == name}
                                     id={`toggle-${name}`}
                                     className="leftUserName"
-                                    type="checkbox"
-                                    variant="outline-primary"
+                                    type="radio"
+                                    variant={variantCSS[props.listOfUsers[name].sex]}
                                     checked={name === props.activeTab ? true : false}
                                     value={i}
                                     onChange={(e) => props.setActiveTab(name)}
-                                    style={userCSS[props.listOfUsers[name].sex]}
-                                    >
+                                    style={ userCSS[props.listOfUsers[name].sex] } >
+                                 
                                  
                                     {Base64.decode(name)}
                                 </ToggleButton>

@@ -3,30 +3,46 @@ import { Tab, Tabs } from 'react-bootstrap';
 import{ IsUrlAndImage, IsUrlAndMP4,IsUrlAndYoutube, getCookie, Base64, checkIsRoom} from '../Utils' ;
 import 'react-image-lightbox/style.css';
 import { NotifyBadge } from '../components/NotifyBadge';
- 
+import {IUsersContainer} from '../Interfaces';
  
 import { Message } from './Message';
-import { Sidebar } from './Sidebar';
+import { RightSidebar } from './RightSidebar';
  
  
 import {IMessagesContainer, IMessage_FROM_Server } from '../Interfaces';
  
+
 interface IMessagesField{
-    setActiveTab: React.Dispatch<React.SetStateAction<string>>;
+ 
     activeTab: string;
     publicMessages: IMessagesContainer;
     privateMessages: IMessagesContainer;
-    notify: {user: string;showing: boolean;},
-    setNotify: React.Dispatch<React.SetStateAction<{user: string;showing: boolean;}>>
-    myNameRef: React.MutableRefObject<string>
+    notify: {
+        alert: string,
+        showing: boolean
+    };
+    myNameRef: React.MutableRefObject<string>;
+    columntextToEndRef: React.LegacyRef<HTMLDivElement>;
+    isOnScroll: boolean;
+    setNotify: React.Dispatch<React.SetStateAction<{alert: string, showing: boolean }>>;
+    setActiveTab: React.Dispatch<React.SetStateAction<string>>;
+    setIsOnSounds: React.Dispatch<React.SetStateAction<boolean>>;
+    setIsOnScroll: React.Dispatch<React.SetStateAction<boolean>>;
+    setIsOnImage: React.Dispatch<React.SetStateAction<boolean>>;
+    setNotifMan: React.Dispatch<React.SetStateAction<boolean>>;
+    setNotifWoman: React.Dispatch<React.SetStateAction<boolean>>;
+    isOnImage: boolean;
+    isOnSounds: boolean;
+    notifMan: boolean;
+    notifWoman: boolean;
+    connectionId: string | null;
+    listOfUsers: IUsersContainer;
+    DoSendPhoto(url: string): void;
 }
 
 export const MessagesField:FC<IMessagesField> = (props) => {
  
     const [columnMessagessCSS, setColMessagessCSS] = useState({});
-    const [isOnImage, setIsOnImage] = useState("");
-    const [isOnScroll, setIsOnScroll] = useState("");
-   
     const [prevTab, setPrevTab] = useState(null);
     const [modalMessage, setModalMessage] = useState("Введите пароль");
     const [nameClickText, setNameClickText] = useState("");
@@ -37,18 +53,18 @@ export const MessagesField:FC<IMessagesField> = (props) => {
 
     useEffect(() => {
        
-        if (isOnScroll) {
+        if (props.isOnScroll) {
             var cleft = document.getElementById("cright");
             cleft.scrollTop = cleft.scrollHeight;
         }
     }, []);
     useEffect(() => {
        
-        if (isOnScroll) {
+        if (props.isOnScroll) {
             var cleft = document.getElementById("cright");
             cleft.scrollTop = cleft.scrollHeight;
         }
-    }, [isOnScroll, props.activeTab]);
+    }, [props.isOnScroll, props.activeTab]);
     const changeSizeLeftMenu = () => {
         setColMessagessCSS(onRightCSS); 
         setColumnUsersCSS(onLeftCSS);
@@ -102,16 +118,11 @@ export const MessagesField:FC<IMessagesField> = (props) => {
         }
         console.log(move)
     }
-    const womanCSS = {
-        backgroundColor: "rgb(255, 182, 193)"
-    }
-    const manCSS = {
-        backgroundColor: "rgb(172, 194, 188)"
-    }
+ 
     return (
-        <div className="columntext" id="cright">
+        <div className="columntext" id="cright" ref={props.columntextToEndRef}>
         <NotifyBadge {...props}/> {/*Ghost user entered notif*/}
-        <ul id="messages">
+        <ul className="messages-field">
             <Tabs defaultActiveKey="Home" unmountOnExit={false} activeKey={props.activeTab} transition={false} id="noanim-tab-example" className="chatTabs"  >
                 {
                      Object.keys(props.publicMessages).map(function (name: string, index: number) {
@@ -145,7 +156,7 @@ export const MessagesField:FC<IMessagesField> = (props) => {
                 }
             </Tabs>
         </ul>
-         <Sidebar setIsOnImage={setIsOnImage} setIsOnScroll={setIsOnScroll} isOnImage={isOnImage} isOnScroll={isOnScroll} {...props} />
+         <RightSidebar {...props} />
     </div>
        );
 }

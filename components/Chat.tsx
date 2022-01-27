@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useReducer  } from 'react';
+import React, { useEffect, useState, createRef ,  useRef, useReducer  } from 'react';
  
 import{IsUrlAndImage, IsUrlAndMP4, IsUrlAndYoutube, isNullOrEmpty, getCookie, Base64, checkIsRoom} from '../Utils' ;
 import 'react-image-lightbox/style.css';
@@ -11,6 +11,9 @@ import * as signalR from '@microsoft/signalr';
  import { ModalPrivateRoom } from './ModalPrivateRoom';
  import { MessagesField } from './MessagesField';
  import { MessageValidator } from '../Utils';
+ import { Form, Button } from 'react-bootstrap';
+import { UserInfo } from 'os';
+  
 export const Chat  = () => {
  
     const [usMes, setUsMes] = useState({});
@@ -21,36 +24,41 @@ export const Chat  = () => {
     const [messageText, setMessageText] = useState("");
     const [enterUsers, setEnterUsers] = useState([]);
     const [show, setShow] = useState(false);
-    const [notifMan, setNotifMan] = useState(""); 
-    const [notifWoman, setNotifWoman] = useState("");
+ 
     const [showModal, setShowModal] = useState(false);
     const [roomsDic, setRoomsDic] = useState({});
     const [secretRoomUsers, setSecretRoomUsers] = useState({});
     const [pingAttempts, setPingAttempts] = useState(0);
     const [usersArr, setUsersArr] = useState([]);
-   
-    const [isOnSounds, setIsOnSounds] = useState("");
-    const [notify, setNotify] = useState({user:"", showing: false});
+
+    const [notifMan, setNotifMan] = useState<boolean>(false); 
+    const [notifWoman, setNotifWoman] = useState<boolean>(false);
+    const [isOnImage, setIsOnImage] = useState<boolean>(false);
+    const [isOnScroll, setIsOnScroll] = useState<boolean>(false);
+    const [isOnSounds, setIsOnSounds] = useState<boolean>(false);
+
+    const [notify, setNotify] = useState({alert:"", showing: false});
     const [connection, setConnection] = useState<signalR.HubConnection | null>(null);
     const [myName, setMyName] = useState(null);
     
    // const [allUsers, setAllUsers] = useState<IUsersContainer>({});
  
-     
+    const [isLogined, setIsLogined] = useState(false);
+
     const [isMyConnectionDone, setIsMyConnectionDone] = useState(false);
     const [startTouch, setStartTouch] = useState(0);
 
     const [columnMessagessCSS, setColMessagessCSS] = useState({});
-    const [isOnImage, setIsOnImage] = useState("");
-    const [isOnScroll, setIsOnScroll] = useState("");
+    const [connectionId, setConnectionId] = useState(null);
    
     const [prevTab, setPrevTab] = useState(null);
     const [modalMessage, setModalMessage] = useState("Введите пароль");
     const [nameClickText, setNameClickText] = useState("");
     const [columnUsersCSS, setColumnUsersCSS] = useState({});
  
-
-
+    const [loginValue, setLoginValue] = useState("");
+    const [isScrollBarAtBottom, setIsScrollBarAtBottom] = useState(true);
+    const columntextToEndRef: React.LegacyRef<HTMLDivElement> = useRef(null);
     const usersInit: IUsersContainer = {
         "testuser":{"connectionid":"testuser","name":"testuser","sex":"m", "isroom": false},
         "dtjydtjydty":{"connectionid":"dtjydtjydty","name":"dtjydtjydty","sex":"w", "isroom": false},
@@ -59,7 +67,6 @@ export const Chat  = () => {
         "dtkdtdttjjj":{"connectionid":"dtkdtdttjjj","name":"dtkdtdttjjj","sex":"m", "isroom": false},
         "tyjtyjrtyjrtyj":{"connectionid":"tyjtyjrtyjrtyj","name":"tyjtyjrtyjrtyj","sex":"m", "isroom": false},
         "Home":{"connectionid":"","name":"Home","sex":"r", "isroom": true},
-        
     }
 
   
@@ -228,7 +235,7 @@ export const Chat  = () => {
     const DoSubmit = (event: React.FormEvent<HTMLFormElement>, textToSend: string) => {
         event.preventDefault();
         let Message: IMessage_FOR_Server = MessageValidator(textToSend);
-        Message.fromwho =  myName;
+        Message.fromwho =  myNameRef.current;
 
         if(checkIsRoom(listOfUsers[activeTab])){
             Message.room = activeTab;
@@ -237,26 +244,39 @@ export const Chat  = () => {
             Message.forwho = activeTab;   
         }
         connection.invoke("MessageHandler", Message);
-
         
         textfieldRef.current.focus();
      }
- 
+     function handleScroll( ){
+        
+    }
 
-    useEffect(() => {   
-      //  setPublicMessages(publicMessagesInit);
-      //  setPrivateMessages(privateMessagesInit);
-    }, []);
+    function DoSendPhoto(url: string){
+        let Message: IMessage_FOR_Server = MessageValidator(url);
+        Message.fromwho =  myNameRef.current;
+
+        if(checkIsRoom(listOfUsers[activeTab])){
+            Message.room = activeTab;
+        }
+        else{
+            Message.forwho = activeTab;   
+        }
+        connection.invoke("MessageHandler", Message);
+    }
     
     useEffect(() => {
+        columntextToEndRef.current?.addEventListener("scroll",  handleScroll, true)
+
         let connect = new signalR.HubConnectionBuilder().withUrl("https://localhost:7061/chat?name=&sex=&isroom=false").build()
         setConnection(connect);
       },[])
     
     useEffect(() => {
         if (connection) {
-            console.log("connection");
-              connection.start().then(() => {
+            
+              
+              connection.start().then(() => { setConnectionId(connection.connectionId);
+          
               connection.on("PrivateResponse", (message: IMessage_FROM_Server , fromwho) => {
                      
                 const refPrivateMessages = privateMessages;
@@ -285,70 +305,55 @@ export const Chat  = () => {
                     setPublicMessages({...refPublicMessages});
               });
 
-              connection.on("GhostLoginResponse", (userslist: IUsersContainer) => {
-               
+
+              
+              connection.on("UpdateListOfUsers", (userslist: IUsersContainer) => {
                 dispatch({type: "toAdd", payload: userslist, keyToDelete: null});
               });
+              connection.on("ModifyUser", (OldUser: IUserInfo, NewUser: IUserInfo) => {
+                removeUserData(OldUser);
+               
+               if(connection.connectionId === NewUser.connectionid){
+                    myNameRef.current = NewUser.name;
+                    setIsLogined(true);
+               }
+                  connection.invoke("GettingUsersListOnce");
+              });
+               
 
               connection.on("LoginNotifyGhost", (message, connectionid: string, user: IUserInfo ) => {
                
-                     let key_value_pair: { [key: string]: {} } = { };
-               //   all_users[connection.connectionId] = {"connectionid":connection.connectionId,"name":connection.connectionId,"sex":"w", "isroom": false};
-                     key_value_pair[user.name] = user;
-               //     setAllUsers({...all_users});
-               //   dispatch({type: "toAdd", payload: key_value_pair, keyToDelete: null});
-              
-               connection.invoke("GettingUsersListOnce");
-
-                   if(!isMyConnectionDone){
-                        myNameRef.current = connection.connectionId;
-                        setMyName(connection.connectionId);
-                        connection.invoke("GettingUsersListOnce");
-                       
-                   }
-          
-                //  setNotify({user: message, showing: true});
-
-                  setIsMyConnectionDone(true);
-              
-              });
-              connection.on("Disconnect", (username: string) => {
-               
-            //    let copyPrivateMessages = {...privateMessages};
-                 let copyPrivateMessages = Object.assign({}, privateMessages);
-                 delete copyPrivateMessages[username];
-                 setPrivateMessages(copyPrivateMessages);
-
-                 let copyPublicMessages = {...publicMessages};
-                 delete copyPublicMessages[username];
-                 setPublicMessages(copyPublicMessages);
-
-
-           
-                dispatch({type: "toRemove", payload: null, keyToDelete: username});
-
-            //    let all_users =  allUsers;
-            //    delete all_users[username];
-           //     setAllUsers({...all_users});
-                if(!isMyConnectionDone){
-                  //  setMyName(connection.connectionId);
+                if(connection.connectionId === connectionid) {
+                    myNameRef.current = user.name;
                 }
-        
-              //  setNotify({user: message, showing: true});
-
-                setIsMyConnectionDone(true);
-               
+                   connection.invoke("GettingUsersListOnce");
+                   setNotify({alert: message, showing: true});
+ 
+              });
+              connection.on("Alerts", (message: string) => {
+                 setNotify({alert: message, showing: true});
+              });
+              connection.on("Disconnect", (RemovedUser: IUserInfo) => {
+                removeUserData(RemovedUser);
             });
-            }) 
-            .catch(
-                (error) => console.log(`Error!   ${error}`)
-                );
-                setPrivateMessages(privateMessagesInit);
-                
+           
 
+            }) 
+            .catch((error) => console.log(`Error!   ${error}`));
         }
       }, [connection]);
 
+     function removeUserData(user: IUserInfo){
+        let copyPrivateMessages = Object.assign({}, privateMessages);
+        delete copyPrivateMessages[user.name];
+        setPrivateMessages(copyPrivateMessages);
+
+        let copyPublicMessages = {...publicMessages};
+        delete copyPublicMessages[user.name];
+        setPublicMessages(copyPublicMessages);
+
+        dispatch({type: "toRemove", payload: null, keyToDelete: user.name});
+     }
     // if (!isLoading) {
     //     return (
     //         <div>
@@ -357,11 +362,41 @@ export const Chat  = () => {
     //         </div>
     //     );
     // } else {
+
+    function onLoginHandler(e: React.FormEvent<HTMLFormElement>) {
+        e.preventDefault();
+        let user: IUserInfo = {
+            connectionid : connection.connectionId,
+            name: loginValue,
+            sex : "m",
+            isroom: false
+        }
+        connection.invoke("UserLogin", user);
+        console.log("");
+    }
+
+   
+    const RowCSS = {
+        login : { height: "calc(100% - 150px)" },
+        logoff : { height: "calc(100% - 50px)" }
+   }
+
         return (
-            <div className="row" onTouchStart={(e) => onTap(e)} onTouchMove={(e) =>moveTouch(e)} >
+            <div className="row" style={isLogined ? RowCSS.logoff : RowCSS.login } onTouchStart={(e) => onTap(e)} onTouchMove={(e) =>moveTouch(e)} >
                  <ModalPrivateRoom modalMessage={modalMessage} setModalMessage={setModalMessage} prevTab={prevTab} showModal={showModal} setShowModal={setShowModal} setShow={setShow} show={show}/>
                  <UsersBar listOfUsers={listOfUsers} myNameRef={myNameRef} activeTab={activeTab} setActiveTab={setActiveTab} />
-                 <MessagesField publicMessages={publicMessages} privateMessages={privateMessages} myNameRef={myNameRef} notify={notify} setNotify={setNotify} activeTab={activeTab} setActiveTab={setActiveTab}  />
+                 <MessagesField DoSendPhoto={DoSendPhoto} listOfUsers={listOfUsers} connectionId={connectionId} activeTab={activeTab} setNotifWoman={setNotifWoman} setNotifMan={setNotifMan} notifMan={notifMan} notifWoman={notifWoman} setIsOnSounds={setIsOnSounds} setIsOnScroll={setIsOnScroll} setIsOnImage={setIsOnImage} isOnImage={isOnImage} isOnScroll={isOnScroll} isOnSounds={isOnSounds} columntextToEndRef={columntextToEndRef} publicMessages={publicMessages} privateMessages={privateMessages} myNameRef={myNameRef} notify={notify} setNotify={setNotify}  setActiveTab={setActiveTab}  />
+             
+             { !isLogined &&
+               (<div className="login-field" style={{height:"100px", width:"100%"}}>
+                <Form onSubmit={(e)=> onLoginHandler(e)} className="login-form">
+                    <Form.Control size="sm" className="login-input" required value={loginValue} onChange={(e)=> setLoginValue(e.currentTarget.value)} type="text" placeholder="Введите свой логин" />
+                    <Button size="lg" variant="primary" type="submit"  >
+                        Авторизоваться
+                    </Button>
+                </Form>
+                </div>)
+              }
                  <TextField textfieldRef={textfieldRef} DoSubmit={DoSubmit}/>
             </div>
          );

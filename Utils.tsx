@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import {IMessage_FOR_Server, IUserInfo} from './Interfaces';
+import Cookies from 'universal-cookie';
 
 export const Base64 = {
     decode: function (hex: string) {
@@ -60,13 +61,10 @@ export const IsUrlAndImage = (str: string) => {
     if (str === null) {
         return false;
     }
-    if (str.includes("giphy.com")) {
+    if (str.includes("https://localhost:7061/")) {
         return true;
     }
-    if (str.includes("https://s3-us-west-1.amazonaws.com/porngifs/img/")) {
-        return true;
-    }
-   
+    console.log("IsUrlAndImage");
     if (str === null) {
         return false;
     }
@@ -185,3 +183,12 @@ export const MessageValidator = (value: string)=>  {
     }
     return Message;
   }
+
+export const setCookie = (name:any, value:any) => {
+    const cookies = new Cookies();
+    const current = new Date();
+    const nextYear = new Date();
+
+    nextYear.setFullYear(current.getFullYear() + 1);
+    cookies.set(name, { key: value }, { path: '/', expires: nextYear });
+}

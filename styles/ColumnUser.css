@@ -61,7 +61,7 @@
 }
 
  
-#labelforimage, .recordButton {
+  .recordButton {
     width: 100px;
     height: 100px;
     float: left;
@@ -91,33 +91,22 @@
 .reactGiphySearchbox-listWrapper{
     overflow-x:hidden;
 }
-#bg-vertical-dropdown-1 {
-    border-color: transparent;
+#bg-vertical-dropdown {
+   width: 20px;
     background-color: #47627d;
     float: left;
-    width: 25px;
+    padding: 0px;
+    margin: auto;
 }
-.leftUserName.btn.active.btn-info {
-    mix-blend-mode: multiply;
-    border-width: 2.5px;
-}
-.leftUserName, .message-name-button-left {
-    background-color: #47627d;
+#bg-vertical-dropdown::after{
+    padding: 0px;
+    margin: auto;
 }
 
-.leftUserName {
-    font-family: Bahnschrift;
-    font-weight: 500;
-    color: #000000;
-    background-color: #d7eada;
-    padding-left: 0;
-    text-align: left;
-}
+ 
  
 
-.leftUserName.btn.active.btn-info {
-    background-color: rgb(189 48 28);
-}
+ 
 
 .youtube {
     border-radius: 1rem;
@@ -127,4 +116,30 @@
     height: 150px;
    text-align:left;
 }
+ 
+.leftUserName {
+    font-family: Bahnschrift;
+    font-weight: 500;
+    padding-left: 0;
+    text-align: left;
+    transition: 0s;
+}
+ 
+.btn-check:active+.btn-outline-primary, .btn-check:checked+.btn-outline-primary, .btn-outline-primary.active, .btn-outline-primary.dropdown-toggle.show, .btn-outline-primary:active {
+    color: #fff;
+    background-color: #0d6efd !important;
+    border-color: #0d6efd;
+    border: turquoise;
+    border-radius: 0%;
+}
 
+.btn-outline-primary {
+    color: #000000;
+    border-color: transparent !important;   
+    border-radius: 0%;
+}
+.liuser{
+    margin-top: 4px;
+    margin-bottom: 4px;
+ 
+}
