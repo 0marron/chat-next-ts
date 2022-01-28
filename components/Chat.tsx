@@ -34,7 +34,7 @@ export const Chat  = () => {
     const [notifMan, setNotifMan] = useState<boolean>(false); 
     const [notifWoman, setNotifWoman] = useState<boolean>(false);
     const [isOnImage, setIsOnImage] = useState<boolean>(false);
-    const [isOnScroll, setIsOnScroll] = useState<boolean>(false);
+   
     const [isOnSounds, setIsOnSounds] = useState<boolean>(false);
 
     const [notify, setNotify] = useState({alert:"", showing: false});
@@ -57,8 +57,7 @@ export const Chat  = () => {
     const [columnUsersCSS, setColumnUsersCSS] = useState({});
  
     const [loginValue, setLoginValue] = useState("");
-    const [isScrollBarAtBottom, setIsScrollBarAtBottom] = useState(true);
-    const columntextToEndRef: React.LegacyRef<HTMLDivElement> = useRef(null);
+ 
     const usersInit: IUsersContainer = {
         "testuser":{"connectionid":"testuser","name":"testuser","sex":"m", "isroom": false},
         "dtjydtjydty":{"connectionid":"dtjydtjydty","name":"dtjydtjydty","sex":"w", "isroom": false},
@@ -75,7 +74,7 @@ export const Chat  = () => {
     const [privateMessages, setPrivateMessages] = useState<IMessagesContainer>({});
     const [publicMessages, setPublicMessages] = useState<IMessagesContainer>({});
     const myNameRef = useRef("");
-    const audioToSend = useRef<string | null>(null);
+    const activeTabRef = useRef<string>("Home");
 
     interface IActionReducer{
         type: string;
@@ -249,37 +248,35 @@ export const Chat  = () => {
         
         textfieldRef.current.focus();
      }
-     function handleScroll( ){
-        
-    }
+  
 
     function DoSendPhoto(url: string){
         let Message: IMessage_FOR_Server = MessageValidator(url);
         Message.fromwho =  myNameRef.current;
 
         if(checkIsRoom(listOfUsers[activeTab])){
-            Message.room = activeTab;
+            Message.room = activeTabRef.current;
         }
         else{
-            Message.forwho = activeTab;   
+            Message.forwho = activeTabRef.current; 
         }
         connection.invoke("MessageHandler", Message);
     }
     function DoSendAudio(url: string){
         let Message: IMessage_FOR_Server = MessageValidator(url);
         Message.fromwho =  myNameRef.current;
-
-        if(checkIsRoom(listOfUsers[activeTab])){
-            Message.room = activeTab;
+        let asddd = activeTabRef.current;
+        if(checkIsRoom(listOfUsers[activeTabRef.current])){
+            Message.room = activeTabRef.current;
         }
         else{
-            Message.forwho = activeTab;   
+            Message.forwho = activeTabRef.current;   
         }
         connection.invoke("MessageHandler", Message);
     }
  
     useEffect(() => {
-        columntextToEndRef.current?.addEventListener("scroll",  handleScroll, true);
+         
 
         let connect = new signalR.HubConnectionBuilder().withUrl("https://localhost:7061/chat?name=&sex=&isroom=false").build();
         setConnection(connect);
@@ -398,8 +395,8 @@ export const Chat  = () => {
         return (
             <div className="row" style={isLogined ? RowCSS.logoff : RowCSS.login } onTouchStart={(e) => onTap(e)} onTouchMove={(e) =>moveTouch(e)} >
                  <ModalPrivateRoom modalMessage={modalMessage} setModalMessage={setModalMessage} prevTab={prevTab} showModal={showModal} setShowModal={setShowModal} setShow={setShow} show={show}/>
-                 <UsersBar listOfUsers={listOfUsers} myNameRef={myNameRef} activeTab={activeTab} setActiveTab={setActiveTab} />
-                 <MessagesField audioToSend={audioToSend} DoSendAudio={DoSendAudio} DoSendPhoto={DoSendPhoto} listOfUsers={listOfUsers} connectionId={connectionId} activeTab={activeTab} setNotifWoman={setNotifWoman} setNotifMan={setNotifMan} notifMan={notifMan} notifWoman={notifWoman} setIsOnSounds={setIsOnSounds} setIsOnScroll={setIsOnScroll} setIsOnImage={setIsOnImage} isOnImage={isOnImage} isOnScroll={isOnScroll} isOnSounds={isOnSounds} columntextToEndRef={columntextToEndRef} publicMessages={publicMessages} privateMessages={privateMessages} myNameRef={myNameRef} notify={notify} setNotify={setNotify}  setActiveTab={setActiveTab}  />
+                 <UsersBar activeTabRef={activeTabRef} listOfUsers={listOfUsers} myNameRef={myNameRef} activeTab={activeTab} setActiveTab={setActiveTab} />
+                 <MessagesField  activeTabRef={activeTabRef} DoSendAudio={DoSendAudio} DoSendPhoto={DoSendPhoto} listOfUsers={listOfUsers} connectionId={connectionId} activeTab={activeTab} setNotifWoman={setNotifWoman} setNotifMan={setNotifMan} notifMan={notifMan} notifWoman={notifWoman} setIsOnSounds={setIsOnSounds}   setIsOnImage={setIsOnImage} isOnImage={isOnImage}   isOnSounds={isOnSounds} publicMessages={publicMessages} privateMessages={privateMessages} myNameRef={myNameRef} notify={notify} setNotify={setNotify}  setActiveTab={setActiveTab}  />
              
              { !isLogined &&
                (<div className="login-field" style={{height:"100px", width:"100%"}}>

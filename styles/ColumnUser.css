@@ -123,6 +123,7 @@
     padding-left: 0;
     text-align: left;
     transition: 0s;
+  
 }
  
 .btn-check:active+.btn-outline-primary, .btn-check:checked+.btn-outline-primary, .btn-outline-primary.active, .btn-outline-primary.dropdown-toggle.show, .btn-outline-primary:active {
@@ -141,5 +142,9 @@
 .liuser{
     margin-top: 4px;
     margin-bottom: 4px;
- 
 }
+
+.liuser label{
+    border-radius: 5px;
+}
+ 

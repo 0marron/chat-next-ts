@@ -11,6 +11,7 @@ import { Style } from 'util';
 interface IUsersBar{
     setActiveTab: React.Dispatch<React.SetStateAction<string>>;
     activeTab: string;
+    activeTabRef: React.MutableRefObject<string>;
 }
 interface IlistOfUsers{
     listOfUsers: IUsersContainer;
@@ -120,7 +121,7 @@ export const UsersBar: FC< IUsersBar & IlistOfUsers & ImyNameRef > = (props) => 
                                     variant={variantCSS[props.listOfUsers[name].sex]}
                                     checked={name === props.activeTab ? true : false}
                                     value={i}
-                                    onChange={(e) => props.setActiveTab(name)}
+                                    onChange={(e) => { props.setActiveTab(name); props.activeTabRef.current = name; }}
                                     style={ userCSS[props.listOfUsers[name].sex] } >
                                  
                                  

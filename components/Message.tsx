@@ -8,9 +8,8 @@ import { IMessage_FROM_Server } from '../Interfaces';
 import Image from 'next/image';
 interface IMessage{
     message: IMessage_FROM_Server;
-    myNameRef: React.MutableRefObject<string>;
-    setActiveTab: React.Dispatch<React.SetStateAction<string>>;
-
+    myNameRef: React.MutableRefObject<string>;  
+    activeTabRef: React.MutableRefObject<string>;
 }
 export const Message: FC<IMessage> = (props) => {
 
@@ -40,7 +39,7 @@ export const Message: FC<IMessage> = (props) => {
  
 
       function onSelectHandler(e: React.SyntheticEvent<HTMLElement, Event>, value: string) {
-          props.setActiveTab(value);
+          props.activeTabRef.current = value;
       }
       function onClickHandler(e: React.MouseEvent<HTMLButtonElement, MouseEvent>, name: string) {
        
@@ -75,8 +74,8 @@ export const Message: FC<IMessage> = (props) => {
 
 
                         {props.message.imageurl && (
-                            <a className="imagechat" onClick={() => setLightBoxState({ photoIndex: 0, isOpen: true })}>
-                                <Image src="https://localhost:7061/hidescreener.png" height={50} width={100} alt="" />
+                            <a  style={{width:'100px',height:'50px' }} onClick={() => setLightBoxState({ photoIndex: 0, isOpen: true })}>
+                                <img src="https://localhost:7061/hidescreener.png" style={{width:'100px',height:'50px',borderRadius:'5px' }} alt="" />
                             </a>
                         )}
 
@@ -102,7 +101,7 @@ export const Message: FC<IMessage> = (props) => {
                     
                         {
                             incomingAudio !== null && !isNullOrEmpty(incomingAudio) && (
-                                <audio controls src={incomingAudio} />
+                                <audio controls src={incomingAudio} style={{height:'30px',backgroundColor:'#f1f1f1', borderRadius: '5px'}}/>
                             )
                         }
                   </div>

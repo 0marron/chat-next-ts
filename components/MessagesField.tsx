@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo, FC } from 'react';
+import React, { useEffect, useState, useRef, FC } from 'react';
 import { Tab, Tabs,Spinner } from 'react-bootstrap';
 import{ IsUrlAndImage, IsUrlAndMP4,IsUrlAndYoutube, getCookie, Base64, checkIsRoom} from '../Utils' ;
 import 'react-image-lightbox/style.css';
@@ -21,16 +21,15 @@ interface IMessagesField{
         alert: string,
         showing: boolean
     };
-    
-    myNameRef: React.MutableRefObject<string>;
-    audioToSend: React.MutableRefObject<string | null>;
 
-    columntextToEndRef: React.LegacyRef<HTMLDivElement>;
-    isOnScroll: boolean;
+    myNameRef: React.MutableRefObject<string>;
+    activeTabRef: React.MutableRefObject<string>;
+ 
+    
     setNotify: React.Dispatch<React.SetStateAction<{alert: string, showing: boolean }>>;
     setActiveTab: React.Dispatch<React.SetStateAction<string>>;
     setIsOnSounds: React.Dispatch<React.SetStateAction<boolean>>;
-    setIsOnScroll: React.Dispatch<React.SetStateAction<boolean>>;
+ 
     setIsOnImage: React.Dispatch<React.SetStateAction<boolean>>;
     setNotifMan: React.Dispatch<React.SetStateAction<boolean>>;
     setNotifWoman: React.Dispatch<React.SetStateAction<boolean>>;
@@ -52,22 +51,34 @@ export const MessagesField:FC<IMessagesField> = (props) => {
     const [nameClickText, setNameClickText] = useState("");
     const [columnUsersCSS, setColumnUsersCSS] = useState({});
     const [startTouch, setStartTouch] = useState(0);
-   
- 
+    const columntextRef = useRef(null);
+    const [isAutoScroll, setIsAutoScroll] = useState<boolean>(true);
 
     useEffect(() => {
-        if (props.isOnScroll) {
-            var cleft = document.getElementById("cright");
-            cleft.scrollTop = cleft.scrollHeight;
-        }
+        columntextRef.current?.addEventListener("scroll",  handleScroll, true);
     }, []);
-    useEffect(() => {
-       
-        if (props.isOnScroll) {
-            var cleft = document.getElementById("cright");
-            cleft.scrollTop = cleft.scrollHeight;
+
+      useEffect(() => {
+         if (isAutoScroll) {
+            (columntextRef.current as HTMLElement).scrollTop =  (columntextRef.current as HTMLElement).scrollHeight;
+         }  
+      }, [props.publicMessages, props.privateMessages]);
+
+    function handleScroll( ){
+
+        let scrollHeight = (columntextRef.current as HTMLElement).scrollHeight;
+        let scrollTop = (columntextRef.current as HTMLElement).scrollTop;
+        let offsetHeight = (columntextRef.current as HTMLElement).offsetHeight;
+ 
+        if(scrollHeight <= (offsetHeight + scrollTop + 1)){
+            setIsAutoScroll(true);
+        } 
+        if(scrollHeight - (offsetHeight + scrollTop)> 100){
+            setIsAutoScroll(false);
         }
-    }, [props.isOnScroll, props.activeTab]);
+    
+     }
+
     const changeSizeLeftMenu = () => {
         setColMessagessCSS(onRightCSS); 
         setColumnUsersCSS(onLeftCSS);
@@ -121,10 +132,20 @@ export const MessagesField:FC<IMessagesField> = (props) => {
         }
         console.log(move)
     }
- 
+    function scrolDown(){
+        (columntextRef.current as HTMLElement).scrollTop =  (columntextRef.current as HTMLElement).scrollHeight;
+    }
     return (
-        <div className="columntext" id="cright" ref={props.columntextToEndRef}>
-         
+     <div className="columntext" id="cright" ref={columntextRef}>
+         { !isAutoScroll && 
+         (<div className="circle-to-bottom" onClick={scrolDown}>
+              <div className="circle-to-bottom"  style={{marginTop:"auto", paddingTop: "13px"}}  >
+                  <span >
+                  ▼
+                  </span> 
+              </div>
+          </div>)
+        }  
         <NotifyBadge {...props}/> {/*Ghost user entered notif*/}
         <ul className="messages-field">
             <Tabs defaultActiveKey="Home" unmountOnExit={false} activeKey={props.activeTab} transition={false} id="noanim-tab-example" className="chatTabs"  >
@@ -161,6 +182,7 @@ export const MessagesField:FC<IMessagesField> = (props) => {
             </Tabs>
         </ul>
          <RightSidebar {...props} />
-    </div>
+        
+     </div>
        );
 }

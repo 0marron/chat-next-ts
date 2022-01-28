@@ -1,26 +1,27 @@
-import React, { FC, useEffect, useRef, useState, Dispatch, SetStateAction } from 'react';
-import { Modal, Form, Button, Spinner, Row, Col, Tab, Tabs } from 'react-bootstrap';
+import React, { FC, useRef, useState, Dispatch, SetStateAction } from 'react';
+import { Form, Button, Spinner, Tab, Tabs } from 'react-bootstrap';
 import Image from 'next/image';
 import { getCookie, checkIsRoom } from '../Utils';
 import $ from 'jquery';
-import {IUsersContainer, IMessage_FOR_Server} from '../Interfaces';
-//import ReactGiphySearchbox from 'react-giphy-searchbox';
-import { DateTime } from './DateTime';
+import {IUsersContainer} from '../Interfaces';
+
+
 interface IRightSidebarProps{
     isOnImage: boolean;
     isOnSounds: boolean;
-    isOnScroll: boolean;
+ 
     notifMan: boolean;
     notifWoman: boolean;
-    activeTab: string;
+ 
     setIsOnImage: Dispatch<SetStateAction<boolean>>;
     setIsOnSounds: Dispatch<SetStateAction<boolean>>;
-    setIsOnScroll: Dispatch<SetStateAction<boolean>>;
+ 
     setNotifMan: Dispatch<SetStateAction<boolean>>;
     setNotifWoman: Dispatch<SetStateAction<boolean>>;
+   
 
     myNameRef: React.MutableRefObject<string>;
-    audioToSend: React.MutableRefObject<string | null>;
+    activeTabRef: React.MutableRefObject<string>;
 
     connectionId: string;
     listOfUsers: IUsersContainer;
@@ -43,10 +44,7 @@ export const RightSidebar: FC<IRightSidebarProps> = (props) => {
         props.setIsOnSounds(!props.isOnSounds);
       
     }
-    const scrollHandler = () => {
-        props.setIsOnScroll(!props.isOnScroll);
-   
-    }
+
     const setNotifManHandler = () => {
         props.setNotifMan(!props.notifMan);
  
@@ -107,6 +105,7 @@ export const RightSidebar: FC<IRightSidebarProps> = (props) => {
         navigator.mediaDevices
             .getUserMedia({ audio: true })
             .then((mic) => {
+                
                 let mediaRecorder;
 
                 try {
@@ -121,6 +120,7 @@ export const RightSidebar: FC<IRightSidebarProps> = (props) => {
                 track.onended = () => console.log("ended");
 
                 mediaRecorder.onstart = function () {
+                    
                     setRecording({
                         active: true,
                         available: false,
@@ -168,9 +168,9 @@ export const RightSidebar: FC<IRightSidebarProps> = (props) => {
         let formData = new FormData();
         formData.append("files", files[0]);
         formData.append("fromwho", props.myNameRef.current);
-        formData.append("forwho", props.activeTab);
+        formData.append("forwho", props.activeTabRef.current);
 
-        if(checkIsRoom(props.listOfUsers[props.activeTab])){
+        if(checkIsRoom(props.listOfUsers[props.activeTabRef.current])){
             formData.append("isroom", "true");
         }
         else{
@@ -203,16 +203,12 @@ export const RightSidebar: FC<IRightSidebarProps> = (props) => {
         );
 
     }
- 
-
-
     function PostAudio(blob: Blob, props: IRightSidebarProps) {
 
             let reader = new FileReader();
             reader.readAsDataURL(blob);
             reader.onloadend = () => {
             let base64toBlob = reader.result;
-          
             props.DoSendAudio(String(base64toBlob));
         }
     }
@@ -227,6 +223,17 @@ export const RightSidebar: FC<IRightSidebarProps> = (props) => {
     }
     function switcherHandler() {
          
+    }
+
+    const selectGif = (item: any)=> {
+        console.log(item)
+
+        let url = item.images.original.url;
+        if (url != null && isPermission) {
+      //      props.sendRequest(url);
+        }
+        
+        setIsShowSlider(false);
     }
     return (
           <>
@@ -267,28 +274,15 @@ export const RightSidebar: FC<IRightSidebarProps> = (props) => {
                     
                     <Form className="switchMenu">
                         <Form.Check checked={props.isOnSounds} type="switch" id="custom-switch1" label="Звуковые оповещения" onChange={soundHandler} />
-                        <Form.Check checked={props.isOnImage} type="switch" id="custom-switch2" label="Картинки" onChange={imageHandler} />
-                        <Form.Check checked={props.isOnScroll} type="switch" id="custom-switch3" label="Автоскролл" onChange={scrollHandler} />
-                        <Form.Check checked={props.notifWoman} type="switch" id="custom-switch4" label="Уведомить если Ж зайдет в чат" onChange={setNotifWomanHandler} />
-                        <Form.Check checked={props.notifMan} type="switch" id="custom-switch5" label="Уведомить если М зайдет в чат" onChange={setNotifManHandler} />
                     </Form>
                     {/* <CreateRoom secretRoomUsers={props.secretRoomUsers} /> */}
                 </Tab>
                 <Tab eventKey="profile" title="Gifs" style={{ height: '100%', backgroundColor: '#a8a087' }}>
-                    {/* 
-                    <ReactGiphySearchbox
-                        gifListHeight= "430px"
-                        imageRenditionFileType="webp"
-                        searchPlaceholder="Search for Stickers"
-                        apiKey="9Ixlv3DWC1biJRI57RanyL7RTbfzz0o7"
-                        onSelect={item => selectGif(item)}
-                        masonryConfig={[
-                            {   gifPerPage: 5, mq: '8', columns: 2, imageWidth: 150, gutter: 1 },
-                        ]}
-                    />
-                    */}
+                    
+             
+                    
                 </Tab>
-                <Tab eventKey="contact" title="Gifs18+" style={{ height: '100%', backgroundColor: '#a8a087' }}>
+                <Tab eventKey="contact" title="Stickers" style={{ height: '100%', backgroundColor: '#a8a087' }}>
                
 			    </Tab>
                 </Tabs>
