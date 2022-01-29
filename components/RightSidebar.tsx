@@ -163,6 +163,7 @@ export const RightSidebar: FC<IRightSidebarProps> = (props) => {
     }
     /////////////
     const onSendPhoto = () => {
+        let domain = process.env.NODE_ENV ==="production" ? "https://chatmenow.ru" : "https://localhost:7061";
         let files = (document.getElementById('files') as HTMLFormElement).files;
        
         let formData = new FormData();
@@ -182,7 +183,7 @@ export const RightSidebar: FC<IRightSidebarProps> = (props) => {
         $.ajax(
             {
                 dataType: 'text',
-                url: "https://localhost:7061/UploadImage",
+                url: `${domain}/UploadImage`,
                 enctype: "multipart/form-data",
                 data: formData,
                 processData: false,
@@ -243,7 +244,7 @@ export const RightSidebar: FC<IRightSidebarProps> = (props) => {
                         <button className="w3-button" onClick={() => setIsShowSlider(!isShowSlider)}  >&#9776;</button>
                     </div>
                 <Tabs id="controlled-tab-example" activeKey={tabName} onSelect={e => onSelectTab(e)}>
-                  <Tab eventKey="home" title="Settings" style={{ height: '100%',   backgroundColor: '#a8a087' }}>
+                  <Tab className="right-menu" eventKey="home" title="Settings" >
                   
                     <div className="columnsettings" id="csettings">
                         <div className="imageInput">
@@ -277,12 +278,10 @@ export const RightSidebar: FC<IRightSidebarProps> = (props) => {
                     </Form>
                     {/* <CreateRoom secretRoomUsers={props.secretRoomUsers} /> */}
                 </Tab>
-                <Tab eventKey="profile" title="Gifs" style={{ height: '100%', backgroundColor: '#a8a087' }}>
-                    
-             
-                    
+                <Tab className="right-menu" eventKey="profile" title="Gifs"  >
+                     
                 </Tab>
-                <Tab eventKey="contact" title="Stickers" style={{ height: '100%', backgroundColor: '#a8a087' }}>
+                <Tab className="right-menu" eventKey="contact" title="Stickers"  >
                
 			    </Tab>
                 </Tabs>

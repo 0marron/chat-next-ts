@@ -371,11 +371,7 @@ p{
 }
  
 
-.tab-content {
-    height: 100%;
-    width: 100%;
-    background-color: #a8a087;
-}
+ 
 .col-sm-2, .col-sm-5 {
     padding-left: 0px;
     padding-right: 0px;
@@ -447,7 +443,7 @@ p{
 .sliderBody {
     width: 300px;
     float: right;
-    height: 550px;
+    height: 300px;
     position:absolute;
 }
 
@@ -633,4 +629,9 @@ audio::-webkit-media-controls-toggle-closed-captions-button {}
     background-color: rgb(255, 182, 193);
     border: 1px solid rgb(0 0 0 / 10%);
     opacity: 1;
+}
+
+.right-menu{
+    background-color: #6b7986;
+    
 }

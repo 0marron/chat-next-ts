@@ -3,7 +3,7 @@ module.exports = {
   reactStrictMode: true,
   useFileSystemPublicRoutes: false,
   images: {
-    domains: ['localhost'],
+    domains: ['localhost', 'chatmenow.ru'],
   },
   async headers() {
     return [

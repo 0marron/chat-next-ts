@@ -276,9 +276,9 @@ export const Chat  = () => {
     }
  
     useEffect(() => {
-         
+         let domain = process.env.NODE_ENV ==="production" ? "https://chatmenow.ru" : "https://localhost:7061";
 
-        let connect = new signalR.HubConnectionBuilder().withUrl("https://localhost:7061/chat?name=&sex=&isroom=false").build();
+        let connect = new signalR.HubConnectionBuilder().withUrl(`${domain}/chat?name=&sex=&isroom=false`).build();
         setConnection(connect);
       },[])
     

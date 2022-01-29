@@ -5,9 +5,9 @@ const next = require('next')
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
-const dev = process.env.NODE_ENV !== 'production'
-const prod = process.env.NODE_ENV === 'production'
-console.log(dev);
+const dev = process.env.NODE_ENV !== 'production';
+const prod = process.env.NODE_ENV === 'production';
+ 
 const app = next({ dev })
 const handle = app.getRequestHandler()
 
