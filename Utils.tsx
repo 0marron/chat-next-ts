@@ -61,7 +61,7 @@ export const IsUrlAndImage = (str: string) => {
     if (str === null) {
         return false;
     }
-    if (str.includes("https://localhost:7061/")) {
+    if (str.includes("https://chatmenow.ru/api/")) {
         return true;
     }
     console.log("IsUrlAndImage");

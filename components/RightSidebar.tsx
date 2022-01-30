@@ -163,7 +163,6 @@ export const RightSidebar: FC<IRightSidebarProps> = (props) => {
     }
     /////////////
     const onSendPhoto = () => {
-        let domain = process.env.NODE_ENV ==="production" ? "https://chatmenow.ru" : "https://localhost:7061";
         let files = (document.getElementById('files') as HTMLFormElement).files;
        
         let formData = new FormData();
@@ -183,7 +182,7 @@ export const RightSidebar: FC<IRightSidebarProps> = (props) => {
         $.ajax(
             {
                 dataType: 'text',
-                url: `${domain}/UploadImage`,
+                url: "https://chatmenow.ru/api/UploadImage",
                 enctype: "multipart/form-data",
                 data: formData,
                 processData: false,

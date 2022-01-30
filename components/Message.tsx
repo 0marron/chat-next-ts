@@ -18,7 +18,6 @@ export const Message: FC<IMessage> = (props) => {
     const fromwhoDecode = useMemo(() => Base64.decode(props.message.fromwho), [])
     const usernameDecode = useMemo(() => Base64.decode(props.message.fromwho), [])
     const incomingAudio = useMemo(() => b64toBlob(props.message.audio), []);
-    const domain = useMemo(() => process.env.NODE_ENV ==="production" ? "https://chatmenow.ru" : "https://localhost:7061", []);
 
      function b64toBlob(dataURI: string) {
         try {
@@ -46,7 +45,7 @@ export const Message: FC<IMessage> = (props) => {
        
       }
 
- 
+
     return (
       
 <>
@@ -76,7 +75,8 @@ export const Message: FC<IMessage> = (props) => {
 
                         {props.message.imageurl && (
                             <a  style={{width:'100px',height:'50px' }} onClick={() => setLightBoxState({ photoIndex: 0, isOpen: true })}>
-                                <img src={`${domain}/hidescreener.png`} style={{width:'100px',height:'50px',borderRadius:'5px' }} alt="" />
+                             <Image src="https://chatmenow.ru/api/public/hidescreener.png" width={100} height={50}  alt="" />
+                                {/* <img src="https://chatmenow.ru/api/public/hidescreener.png" style={{width:'100px',height:'50px',borderRadius:'5px' }} alt="" /> */}
                             </a>
                         )}
 
