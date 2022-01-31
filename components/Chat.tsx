@@ -278,7 +278,7 @@ export const Chat  = () => {
     useEffect(() => {
          
 
-        let connect = new signalR.HubConnectionBuilder().withUrl("https://chatmenow.ru/api/chat?name=&sex=&isroom=false").build();
+        let connect = new signalR.HubConnectionBuilder().withUrl("https://localhost:8001/api/chat?name=&sex=&isroom=false").build();
         setConnection(connect);
       },[])
     
